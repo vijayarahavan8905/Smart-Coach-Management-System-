@@ -1,0 +1,21 @@
+Rep_ID,Ground_Truth,Expected_Defect,Score,Predicted_Quality,Depth_Penalty,Torso_Penalty,DTW_Penalty,Worst_Moment_Reason
+good_rep_01,Good,None,100.0,Good,0.0,0.0,0.0,Good execution! Minor trajectory variance.
+good_rep_02,Good,None,100.0,Good,0.0,0.0,0.0,Good execution! Minor trajectory variance.
+good_rep_03,Good,None,100.0,Good,0.0,0.0,0.0,Good execution! Minor trajectory variance.
+good_rep_04,Good,None,100.0,Good,0.0,0.0,0.0,Good execution! Minor trajectory variance.
+good_rep_05,Good,None,100.0,Good,0.0,0.0,0.0,Good execution! Minor trajectory variance.
+good_rep_06,Good,None,100.0,Good,0.0,0.0,0.0,Good execution! Minor trajectory variance.
+good_rep_07,Good,None,100.0,Good,0.0,0.0,0.0,Good execution! Minor trajectory variance.
+good_rep_08,Good,None,100.0,Good,0.0,0.0,0.0,Good execution! Minor trajectory variance.
+good_rep_09,Good,None,100.0,Good,0.0,0.0,0.0,Good execution! Minor trajectory variance.
+good_rep_10,Good,None,100.0,Good,0.0,0.0,0.0,Good execution! Minor trajectory variance.
+shallow_rep_01,Bad,Shallow Depth (100°),55.0,Bad,15.0,0.0,30.0,Shallow Depth: Knee angle was 100.0° (target <= 90°)
+shallow_rep_02,Bad,Shallow Depth (105°),47.5,Bad,22.5,0.0,30.0,Shallow Depth: Knee angle was 105.0° (target <= 90°)
+shallow_rep_03,Bad,Shallow Depth (110°),40.0,Bad,30.0,0.0,30.0,Shallow Depth: Knee angle was 110.0° (target <= 90°)
+shallow_rep_04,Bad,Shallow Depth (115°),32.5,Bad,37.5,0.0,30.0,Shallow Depth: Knee angle was 115.0° (target <= 90°)
+shallow_rep_05,Bad,Shallow Depth (120°),30.0,Bad,40.0,0.0,30.0,Shallow Depth: Knee angle was 120.0° (target <= 90°)
+excessive_lean_rep_01,Bad,Excessive Lean (+25°),93.8,Good,0.0,6.2,0.0,Excessive Forward Lean: Chest angled 39.1° forward (target <= 35°)
+excessive_lean_rep_02,Bad,Excessive Lean (+32°),83.3,Good,0.0,16.7,0.0,Excessive Forward Lean: Chest angled 46.1° forward (target <= 35°)
+excessive_lean_rep_03,Bad,Excessive Lean (+39°),72.8,Bad,0.0,27.2,0.0,Excessive Forward Lean: Chest angled 53.1° forward (target <= 35°)
+excessive_lean_rep_04,Bad,Excessive Lean (+46°),70.0,Bad,0.0,30.0,0.0,Excessive Forward Lean: Chest angled 60.1° forward (target <= 35°)
+excessive_lean_rep_05,Bad,Excessive Lean (+53°),70.0,Bad,0.0,30.0,0.0,Excessive Forward Lean: Chest angled 67.1° forward (target <= 35°)

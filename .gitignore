@@ -1,0 +1,41 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Large Video files (Never commit videos to git)
+*.mp4
+*.MP4
+*.mov
+*.MOV
+*.avi
+*.mkv
+data/user_videos/
+data/reference_videos/
+
+# Intermediate caches & model binaries
+data/cache/
+*.task
+*.parquet
+*.pkl
+
+# Debug and run outputs
+data/outputs/
+data/reports/*.png
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+powershell.cmd
+
+# Environment variables
+.env

@@ -1,0 +1,35 @@
+{
+  "exercise_name": "pushup",
+  "display_name": "Push-up",
+  "camera_view_hint": "Side view at floor level",
+  "primary_metric": "primary_elbow_smooth",
+  "inflection_type": "valley",
+  "rep_detection": {
+    "standing_threshold": 150.0,
+    "inflection_threshold": 115.0,
+    "min_rom_degrees": 35.0,
+    "min_duration_sec": 1.0,
+    "max_duration_sec": 6.0,
+    "peak_prominence": 25.0
+  },
+  "form_metrics": {
+    "depth": {
+      "metric": "primary_elbow_smooth",
+      "parallel_threshold": 90.0,
+      "shallow_threshold": 100.0,
+      "deep_threshold": 80.0,
+      "description": "Push-up depth measured by elbow interior flexion angle (lower is deeper)"
+    },
+    "torso_lean": {
+      "metric": "torso_lean_smooth",
+      "excessive_lean_threshold": 30.0,
+      "description": "Hip sag or arch away from straight rigid plank line"
+    }
+  },
+  "coaching_tips": {
+    "shallow_depth": "Lower your chest closer to the floor. Aim for at least 90-degree bend at your elbows.",
+    "excessive_lean": "Your hips are sagging. Squeeze your glutes and brace your core to maintain a straight plank.",
+    "good_rep": "Strong push-up! Full elbow extension at the top and chest-to-deck depth."
+  }
+}
+

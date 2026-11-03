@@ -1,0 +1,34 @@
+{
+  "exercise_name": "squat",
+  "display_name": "Squat",
+  "camera_view_hint": "Side (sagittal) or 45-degree angle recommended",
+  "primary_metric": "primary_knee_smooth",
+  "inflection_type": "valley",
+  "rep_detection": {
+    "standing_threshold": 150.0,
+    "inflection_threshold": 120.0,
+    "min_rom_degrees": 35.0,
+    "min_duration_sec": 1.0,
+    "max_duration_sec": 8.0,
+    "peak_prominence": 25.0
+  },
+  "form_metrics": {
+    "depth": {
+      "metric": "primary_knee_smooth",
+      "parallel_threshold": 90.0,
+      "shallow_threshold": 95.0,
+      "deep_threshold": 75.0,
+      "description": "Squat depth measured by knee interior angle (lower is deeper)"
+    },
+    "torso_lean": {
+      "metric": "torso_lean_smooth",
+      "excessive_lean_threshold": 45.0,
+      "description": "Forward chest lean relative to gravity vertical"
+    }
+  },
+  "coaching_tips": {
+    "shallow_depth": "Your squat was too shallow. Lower your hips until thighs are at least parallel to the ground.",
+    "excessive_lean": "You are leaning your chest too far forward. Keep your chest proud and core tight.",
+    "good_rep": "Excellent rep! Deep hip crease and stable upright torso."
+  }
+}

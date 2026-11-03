@@ -1,0 +1,17 @@
+# Coach Lens Dependencies
+# Core Computer Vision & Pose Estimation
+opencv-python>=4.8.0
+mediapipe>=0.10.0
+
+# Numerical Computing & Signal Processing
+numpy>=1.22.0
+scipy>=1.8.0
+pandas>=1.4.0
+fastdtw>=0.3.4
+
+# Visualization & UI
+matplotlib>=3.5.0
+streamlit>=1.25.0
+
+# Optional Coach Rephrasing (Gemini Free Tier, strictly with rule-based fallback)
+google-genai>=1.0.0

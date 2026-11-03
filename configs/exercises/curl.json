@@ -1,0 +1,35 @@
+{
+  "exercise_name": "curl",
+  "display_name": "Barbell Biceps Curl",
+  "camera_view_hint": "Side view at chest level",
+  "primary_metric": "primary_elbow_smooth",
+  "inflection_type": "valley",
+  "rep_detection": {
+    "standing_threshold": 140.0,
+    "inflection_threshold": 95.0,
+    "min_rom_degrees": 40.0,
+    "min_duration_sec": 1.0,
+    "max_duration_sec": 6.0,
+    "peak_prominence": 30.0
+  },
+  "form_metrics": {
+    "depth": {
+      "metric": "primary_elbow_smooth",
+      "parallel_threshold": 65.0,
+      "shallow_threshold": 75.0,
+      "deep_threshold": 50.0,
+      "description": "Peak bicep curl contraction angle at the top of the curl"
+    },
+    "torso_lean": {
+      "metric": "torso_lean_smooth",
+      "excessive_lean_threshold": 25.0,
+      "description": "Momentum swinging or arching back during curl lift"
+    }
+  },
+  "coaching_tips": {
+    "shallow_depth": "Incomplete contraction. Squeeze your biceps at the top until forearms approach your shoulders.",
+    "excessive_lean": "Stop swinging your torso! Pin your elbows to your sides and lift with pure bicep tension.",
+    "good_rep": "Excellent curl form! Zero body sway with full range of motion."
+  }
+}
+

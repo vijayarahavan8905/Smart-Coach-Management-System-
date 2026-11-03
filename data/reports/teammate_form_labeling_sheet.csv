@@ -1,0 +1,4 @@
+video_filename,athlete_name,camera_angle,camera_height,rep_number,form_label,observed_defect,notes
+teammate_squat_01.mp4,Vijay,Left Side (90 deg),Hip Level (approx 1m),1,Good,None - parallel depth reached,Textbook form baseline
+teammate_squat_02.mp4,Teammate 1,Left Side (90 deg),Hip Level,1,Bad,Shallow Depth,Stopped ~15 degrees above parallel
+teammate_squat_03.mp4,Teammate 2,Left Side (90 deg),Hip Level,1,Bad,Chest Collapse,Excessive torso forward lean at bottom
