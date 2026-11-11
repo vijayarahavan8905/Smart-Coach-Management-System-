@@ -37,6 +37,7 @@ class CoachingAdvisor:
         """
         Deterministic, rule-based feedback derived strictly from measured physical gaps.
         """
+        ex_name = eval_result.get("exercise_name", "squat").lower()
         score = eval_result.get("overall_score", 0.0)
         gaps = eval_result.get("gaps", {})
         penalties = eval_result.get("penalties", {})
@@ -44,19 +45,43 @@ class CoachingAdvisor:
 
         tips: List[str] = []
 
-        # 1. Depth Analysis
+        # 1. Depth / Primary Joint Flexion Analysis
         depth_gap = gaps.get("depth_gap_degrees", 0.0)
         user_min_knee = gaps.get("user_min_knee", 0.0)
-        if depth_gap > 0:
-            tips.append(
-                f"Squat Depth was shallow ({user_min_knee:.1f}° vs. target <= 90°). "
-                f"You stopped approximately {depth_gap:.1f}° above parallel. "
-                "Sink your hips deeper so your hip crease drops level with the top of your knees."
-            )
+        target_depth = gaps.get("target_depth", 90.0)
+
+        if ex_name == "pushup":
+            if depth_gap > 0:
+                tips.append(
+                    f"Push-up depth was shallow (Elbow flexion: {user_min_knee:.1f}° vs. target <= {target_depth}°). "
+                    f"You stopped approximately {depth_gap:.1f}° above target depth. "
+                    "Lower your chest closer to the floor until your elbows reach at least a 90-degree bend."
+                )
+            else:
+                tips.append(
+                    f"Solid push-up depth! Your elbows flexed to {user_min_knee:.1f}°, breaking the 90° target."
+                )
+        elif ex_name == "curl":
+            if depth_gap > 0:
+                tips.append(
+                    f"Biceps contraction incomplete (Elbow flexion: {user_min_knee:.1f}° vs. target <= {target_depth}°). "
+                    "Ensure a full squeeze at the peak of the curl without swinging your elbows forward."
+                )
+            else:
+                tips.append(
+                    f"Clean biceps contraction! Your elbows reached {user_min_knee:.1f}° at peak contraction."
+                )
         else:
-            tips.append(
-                f"Great squat depth! Your knees flexed to {user_min_knee:.1f}°, breaking parallel cleanly."
-            )
+            if depth_gap > 0:
+                tips.append(
+                    f"Squat depth was shallow ({user_min_knee:.1f}° vs. target <= {target_depth}°). "
+                    f"You stopped approximately {depth_gap:.1f}° above parallel. "
+                    "Sink your hips deeper so your hip crease drops level with the top of your knees."
+                )
+            else:
+                tips.append(
+                    f"Great squat depth! Your knees flexed to {user_min_knee:.1f}°, breaking parallel cleanly."
+                )
 
         # 2. Torso Lean Analysis
         torso_gap = gaps.get("torso_gap_degrees", 0.0)
@@ -81,11 +106,11 @@ class CoachingAdvisor:
 
         # 4. Summary Action Item
         if score >= 90:
-            tips.insert(0, "🌟 Textbook Repetition! High biomechanical efficiency.")
+            tips.insert(0, "Textbook Repetition! High biomechanical efficiency.")
         elif score >= 75:
-            tips.insert(0, f"👍 Good rep (Score: {score}/100). Focus on: {worst.get('reason', 'polishing form')}.")
+            tips.insert(0, f"Good rep (Score: {score}/100). Focus on: {worst.get('reason', 'polishing form')}.")
         else:
-            tips.insert(0, f"⚠️ Form breakdown detected (Score: {score}/100). Primary issue: {worst.get('reason', 'check depth and posture')}.")
+            tips.insert(0, f"Form breakdown detected (Score: {score}/100). Primary issue: {worst.get('reason', 'check depth and posture')}.")
 
         return tips
 

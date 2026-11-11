@@ -39,7 +39,6 @@ from coach import CoachingAdvisor
 # ==============================================================================
 st.set_page_config(
     page_title="Coach Lens | AI Sports Biomechanics",
-    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -47,102 +46,148 @@ st.set_page_config(
 # Custom High-End Modern Styling (Tailwind / Modern SaaS aesthetic)
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
+    code, pre {
+        font-family: 'JetBrains Mono', monospace !important;
+    }
+
+    /* Main Container Spacing */
+    .block-container {
+        padding-top: 1.8rem !important;
+        padding-bottom: 3.5rem !important;
+        max-width: 1280px !important;
+    }
 
     /* Hero Banner */
     .hero-container {
-        background: radial-gradient(120% 120% at 50% 0%, #1E293B 0%, #0B0F19 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
+        background: linear-gradient(135deg, #0F172A 0%, #111827 50%, #0B0F19 100%);
+        border: 1px solid #1E293B;
+        border-radius: 14px;
         padding: 26px 32px;
         margin-bottom: 22px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #38BDF8, #818CF8, #34D399);
     }
     .hero-badge {
         display: inline-flex;
         align-items: center;
-        background: rgba(56, 189, 248, 0.12);
+        background: rgba(56, 189, 248, 0.1);
         color: #38BDF8;
-        font-size: 0.78rem;
+        font-size: 0.72rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        padding: 4px 12px;
+        letter-spacing: 0.08em;
+        padding: 4px 10px;
         border-radius: 9999px;
-        border: 1px solid rgba(56, 189, 248, 0.3);
-        margin-bottom: 10px;
+        border: 1px solid rgba(56, 189, 248, 0.25);
     }
     .hero-title {
         font-size: 2.1rem;
         font-weight: 800;
         color: #F8FAFC;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.025em;
         line-height: 1.2;
+        margin-top: 8px;
     }
     .hero-desc {
-        font-size: 0.98rem;
+        font-size: 0.95rem;
         color: #94A3B8;
-        margin-top: 6px;
-        max-width: 900px;
+        margin-top: 8px;
+        max-width: 880px;
+        line-height: 1.6;
     }
 
     /* Metric Cards */
     .stat-card {
-        background: #131A2A;
+        background: #111827;
         border: 1px solid #1E293B;
-        border-radius: 10px;
-        padding: 16px 20px;
+        border-radius: 12px;
+        padding: 18px 22px;
         position: relative;
-        transition: transform 0.2s ease, border-color 0.2s ease;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     }
     .stat-card:hover {
+        transform: translateY(-2px);
         border-color: #38BDF8;
+        box-shadow: 0 8px 24px -4px rgba(56, 189, 248, 0.15);
     }
     .stat-label {
-        font-size: 0.78rem;
-        font-weight: 600;
+        font-size: 0.72rem;
+        font-weight: 700;
         color: #64748B;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.08em;
     }
     .stat-number {
-        font-size: 1.9rem;
+        font-size: 2.1rem;
         font-weight: 800;
         color: #F8FAFC;
         margin-top: 4px;
         line-height: 1.1;
+        letter-spacing: -0.02em;
     }
     .stat-meta {
         font-size: 0.8rem;
         color: #94A3B8;
-        margin-top: 4px;
+        margin-top: 6px;
+    }
+
+    /* Section Header */
+    .section-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 28px 0 16px 0;
+    }
+    .section-bar {
+        width: 4px;
+        height: 22px;
+        background: #38BDF8;
+        border-radius: 2px;
+    }
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #F8FAFC;
+        letter-spacing: -0.01em;
+    }
+    .section-desc {
+        font-size: 0.82rem;
+        color: #64748B;
+        margin-left: auto;
     }
 
     /* Diagnostic Callout Card */
     .diagnostic-card {
-        background: #131A2A;
+        background: #111827;
         border: 1px solid #1E293B;
         border-radius: 10px;
-        padding: 18px 22px;
-        margin-bottom: 16px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
     }
-    .diagnostic-title {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #38BDF8;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
-    }
-    .diagnostic-text {
-        font-size: 0.9rem;
-        color: #CBD5E1;
-        line-height: 1.55;
+
+    /* Sidebar Brand Card */
+    .sidebar-brand {
+        background: linear-gradient(180deg, #1E293B 0%, #111827 100%);
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 16px 18px;
+        margin-bottom: 18px;
     }
 
     /* Tab styling */
@@ -150,17 +195,33 @@ st.markdown("""
         gap: 8px;
     }
     .stTabs [data-baseweb="tab"] {
-        background-color: #131A2A;
-        border-radius: 6px 6px 0 0;
+        background-color: #111827;
+        border-radius: 8px;
         padding: 8px 18px;
         border: 1px solid #1E293B;
         color: #94A3B8;
         font-weight: 600;
+        font-size: 0.88rem;
     }
     .stTabs [aria-selected="true"] {
         background-color: #1E293B !important;
         border-color: #38BDF8 !important;
         color: #F8FAFC !important;
+    }
+
+    /* Primary Button Glow */
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+        border: 1px solid #38BDF8;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+        transition: all 0.2s ease;
+    }
+    .stButton > button[kind="primary"]:hover {
+        background: linear-gradient(135deg, #0369A1 0%, #075985 100%);
+        box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
+        transform: translateY(-1px);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -170,15 +231,24 @@ st.markdown("""
 # SIDEBAR CONTROLS
 # ==============================================================================
 with st.sidebar:
-    st.markdown("### 🏋️ Coach Lens")
-    st.caption("AI-Powered Gym Form & Biomechanics Engine")
-    st.markdown("---")
+    st.markdown("""
+    <div class="sidebar-brand">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:0.7rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#38BDF8; background:rgba(56,189,248,0.12); padding:2px 8px; border-radius:999px;">SPORTS AI LAB</span>
+            <span style="font-size:0.7rem; color:#64748B; font-weight:600;">v2.4</span>
+        </div>
+        <div style="font-size:1.35rem; font-weight:800; color:#F8FAFC; letter-spacing:-0.02em;">Coach Lens</div>
+        <div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">Biomechanical Kinematic Engine</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     # 1. Target Exercise Selector
+    st.markdown("<div style='font-size:0.72rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;'>01 // Target Exercise</div>", unsafe_allow_html=True)
     exercise_choice = st.selectbox(
         "Select Exercise",
         ["Squat", "Push-up", "Barbell Biceps Curl"],
         index=0,
+        label_visibility="collapsed",
     )
     if exercise_choice == "Squat":
         exercise_name = "squat"
@@ -190,11 +260,15 @@ with st.sidebar:
         exercise_name = "curl"
         joint_label = "Biceps Contraction (Target <= 65°)"
 
-    st.caption(f"🎯 **Tracked Vector:** {joint_label}")
-    st.markdown("---")
+    st.markdown(f"""
+    <div style="background:rgba(15,23,42,0.6); border:1px solid #1E293B; border-radius:8px; padding:8px 12px; margin-top:6px; margin-bottom:18px;">
+        <div style="font-size:0.68rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.06em;">Tracked Joint Vector</div>
+        <div style="font-size:0.82rem; font-weight:600; color:#38BDF8; margin-top:2px;">{joint_label}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     # 2. Video Input Selector
-    st.markdown("**Workout Video Input**")
+    st.markdown("<div style='font-size:0.72rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;'>02 // Workout Video Input</div>", unsafe_allow_html=True)
     input_source = st.radio(
         "Input Mode",
         ["Dataset Benchmark Sample", "Upload Phone Video (.mp4)"],
@@ -221,13 +295,20 @@ with st.sidebar:
             tfile.write(uploaded_file.read())
             selected_video_path = Path(tfile.name)
 
-    st.markdown("---")
-    analyze_btn = st.button("🚀 Analyze Biomechanics", type="primary", use_container_width=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    analyze_btn = st.button("Analyze Biomechanics", type="primary", use_container_width=True)
 
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("---")
-    st.caption("🎓 **CSE Final Year Project**")
-    st.caption("Explainable AI • MediaPipe BlazePose • FastDTW")
+    st.markdown("""
+    <div style="border-top:1px solid #1E293B; padding-top:14px; margin-top:28px;">
+        <div style="display:flex; align-items:center; gap:8px; font-size:0.75rem; color:#34D399; font-weight:600;">
+            <div style="width:7px; height:7px; background:#34D399; border-radius:50%; box-shadow:0 0 6px #34D399;"></div>
+            Kinematic Engine Ready
+        </div>
+        <div style="font-size:0.72rem; color:#64748B; margin-top:4px;">
+            Explainable AI • MediaPipe BlazePose • FastDTW
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # ==============================================================================
@@ -235,11 +316,15 @@ with st.sidebar:
 # ==============================================================================
 st.markdown("""
 <div class="hero-container">
-    <div class="hero-badge">⚡ Computer Vision & Kinematic Intelligence</div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+        <span class="hero-badge">Computer Vision</span>
+        <span class="hero-badge" style="color:#A78BFA; background:rgba(167,139,250,0.1); border-color:rgba(167,139,250,0.3);">33 3D BlazePose Landmarks</span>
+        <span class="hero-badge" style="color:#34D399; background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3);">FastDTW Kinematic Alignment</span>
+    </div>
     <div class="hero-title">Coach Lens: Biomechanical Workout Analyzer</div>
     <div class="hero-desc">
         Real-time motion analysis that translates 33 3D skeletal landmarks into joint kinematics,
-        segments repetitions, and scores workout form against physical therapy reference standards.
+        segments repetitions via kinetic inflection filtering, and scores workout form against physical therapy reference standards.
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -249,35 +334,35 @@ st.markdown("""
 # IDLE STATE: EDUCATIONAL ARCHITECTURE EXPLAINER
 # ==============================================================================
 if not analyze_btn and selected_video_path is None:
-    st.info("👈 Select a sample clip or upload your phone video from the sidebar, then click **'Analyze Biomechanics'**.")
+    st.info("Select a sample clip or upload your phone video from the sidebar, then click **'Analyze Biomechanics'**.")
     
     col_a, col_b, col_c = st.columns(3)
     with col_a:
         st.markdown("""
-        <div class="stat-card">
-            <div class="stat-label">Module 1 & 2</div>
-            <div style="font-size:1.15rem; font-weight:700; color:#F8FAFC; margin:6px 0;">3D Landmark Tracking</div>
-            <div style="font-size:0.85rem; color:#94A3B8;">
+        <div class="stat-card" style="border-top:3px solid #38BDF8;">
+            <div class="stat-label">Phase 01 // Computer Vision</div>
+            <div style="font-size:1.15rem; font-weight:700; color:#F8FAFC; margin:8px 0 6px 0;">3D Landmark Tracking</div>
+            <div style="font-size:0.85rem; color:#94A3B8; line-height:1.5;">
                 Extracts 33 human joint coordinates, resolves dominant camera side, and computes scale-invariant angles.
             </div>
         </div>
         """, unsafe_allow_html=True)
     with col_b:
         st.markdown("""
-        <div class="stat-card">
-            <div class="stat-label">Module 3 & 4</div>
-            <div style="font-size:1.15rem; font-weight:700; color:#F8FAFC; margin:6px 0;">Repetition Segmentation</div>
-            <div style="font-size:0.85rem; color:#94A3B8;">
+        <div class="stat-card" style="border-top:3px solid #818CF8;">
+            <div class="stat-label">Phase 02 // Signal Processing</div>
+            <div style="font-size:1.15rem; font-weight:700; color:#F8FAFC; margin:8px 0 6px 0;">Repetition Segmentation</div>
+            <div style="font-size:0.85rem; color:#94A3B8; line-height:1.5;">
                 Splits continuous video into distinct reps using peak/valley signal analysis with physics-based filters.
             </div>
         </div>
         """, unsafe_allow_html=True)
     with col_c:
         st.markdown("""
-        <div class="stat-card">
-            <div class="stat-label">Module 5 & 7</div>
-            <div style="font-size:1.15rem; font-weight:700; color:#F8FAFC; margin:6px 0;">FastDTW Form Scoring</div>
-            <div style="font-size:0.85rem; color:#94A3B8;">
+        <div class="stat-card" style="border-top:3px solid #34D399;">
+            <div class="stat-label">Phase 03 // Biomechanics</div>
+            <div style="font-size:1.15rem; font-weight:700; color:#F8FAFC; margin:8px 0 6px 0;">FastDTW Form Scoring</div>
+            <div style="font-size:0.85rem; color:#94A3B8; line-height:1.5;">
                 Aligns repetitions to Golden Reference Templates, generating transparent 0–100 scores and coach tips.
             </div>
         </div>
@@ -321,7 +406,7 @@ if analyze_btn and selected_video_path is not None:
             st.stop()
 
     if not reps:
-        st.warning("⚠️ No valid repetitions detected in this clip. Ensure full range of motion from starting posture to bottom and back.")
+        st.warning("No valid repetitions detected in this clip. Ensure full range of motion from starting posture to bottom and back.")
         st.stop()
 
     # Calculate High-Level Averages
@@ -335,42 +420,65 @@ if analyze_btn and selected_video_path is not None:
     # --------------------------------------------------------------------------
     # 1. EXECUTIVE KPI METRICS ROW
     # --------------------------------------------------------------------------
-    st.markdown("### 📊 Workout Performance Summary")
+    st.markdown("""
+    <div class="section-wrap">
+        <div class="section-bar"></div>
+        <div class="section-title">Workout Performance Summary</div>
+        <div class="section-desc">Automated Kinematic Telemetry</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     c1, c2, c3, c4 = st.columns(4)
 
     score_color = "#34D399" if avg_score >= 80 else ("#FBBF24" if avg_score >= 65 else "#F87171")
     grade_label = "Grade A" if avg_score >= 90 else ("Grade B" if avg_score >= 80 else ("Grade C" if avg_score >= 70 else "Grade D/F"))
 
+    target_depth = 90.0 if exercise_name in ("squat", "pushup") else 65.0
+    if exercise_name == "squat":
+        depth_label = "Average Knee Depth"
+        depth_status = "Breaking Parallel" if avg_depth <= target_depth else "Above Parallel"
+    elif exercise_name == "pushup":
+        depth_label = "Average Elbow Depth"
+        depth_status = "Breaking 90°" if avg_depth <= target_depth else "Shallow Depth"
+    else:
+        depth_label = "Biceps Contraction"
+        depth_status = "Full Contraction" if avg_depth <= target_depth else "Partial Range"
+
+    depth_color = "#34D399" if avg_depth <= target_depth else "#FBBF24"
+
+    torso_status = "Safe Alignment" if avg_torso <= 35.0 else "Excessive Lean"
+    torso_color = "#34D399" if avg_torso <= 35.0 else "#F87171"
+
     with c1:
         st.markdown(f"""
-        <div class="stat-card">
+        <div class="stat-card" style="border-top:3px solid {score_color};">
             <div class="stat-label">Overall Form Score</div>
-            <div class="stat-number" style="color:{score_color};">{avg_score} <span style="font-size:1.1rem; color:#64748B;">/ 100</span></div>
-            <div class="stat-meta">{grade_label} (Biomechanical Average)</div>
+            <div class="stat-number" style="color:{score_color};">{avg_score} <span style="font-size:1.05rem; color:#64748B; font-weight:600;">/ 100</span></div>
+            <div class="stat-meta"><span style="background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:4px; font-weight:700; color:{score_color};">{grade_label}</span> • Biomechanical Mean</div>
         </div>
         """, unsafe_allow_html=True)
     with c2:
         st.markdown(f"""
-        <div class="stat-card">
+        <div class="stat-card" style="border-top:3px solid #38BDF8;">
             <div class="stat-label">Reps Completed</div>
-            <div class="stat-number">{len(reps)}</div>
-            <div class="stat-meta">Clip Length: {len(landmarks_df)/fps:.1f}s ({fps:.1f} FPS)</div>
+            <div class="stat-number" style="color:#F8FAFC;">{len(reps)}</div>
+            <div class="stat-meta">Duration: {len(landmarks_df)/fps:.1f}s • {fps:.1f} FPS</div>
         </div>
         """, unsafe_allow_html=True)
     with c3:
         st.markdown(f"""
-        <div class="stat-card">
-            <div class="stat-label">Average Depth Angle</div>
-            <div class="stat-number">{avg_depth}°</div>
-            <div class="stat-meta">Standard: &le; 90.0° Parallel Depth</div>
+        <div class="stat-card" style="border-top:3px solid {depth_color};">
+            <div class="stat-label">{depth_label}</div>
+            <div class="stat-number" style="color:#F8FAFC;">{avg_depth}°</div>
+            <div class="stat-meta"><span style="color:{depth_color}; font-weight:600;">{depth_status}</span> • Target: &le; {target_depth:.0f}°</div>
         </div>
         """, unsafe_allow_html=True)
     with c4:
         st.markdown(f"""
-        <div class="stat-card">
+        <div class="stat-card" style="border-top:3px solid {torso_color};">
             <div class="stat-label">Peak Trunk Lean</div>
-            <div class="stat-number">{avg_torso}°</div>
-            <div class="stat-meta">Safe Threshold: &le; 35.0° from vertical</div>
+            <div class="stat-number" style="color:#F8FAFC;">{avg_torso}°</div>
+            <div class="stat-meta"><span style="color:{torso_color}; font-weight:600;">{torso_status}</span> • Limit: &le; 35°</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -379,7 +487,14 @@ if analyze_btn and selected_video_path is not None:
     # --------------------------------------------------------------------------
     # 2. DUAL RADAR & GAUGE VISUALIZATION (PLOTLY)
     # --------------------------------------------------------------------------
-    st.markdown("### 🎯 Athletic Biomechanical Profiler")
+    st.markdown("""
+    <div class="section-wrap">
+        <div class="section-bar"></div>
+        <div class="section-title">Athletic Biomechanical Profiler</div>
+        <div class="section-desc">Gauge & 5-Axis Spider Telemetry</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     gauge_col, radar_col = st.columns([1.0, 1.25])
 
     with gauge_col:
@@ -388,7 +503,7 @@ if analyze_btn and selected_video_path is not None:
             mode="gauge+number",
             value=avg_score,
             number={"suffix": " / 100", "font": {"size": 32, "color": "#F8FAFC", "family": "Plus Jakarta Sans"}},
-            title={"text": "Form Score Metric Gauge", "font": {"size": 15, "color": "#94A3B8"}},
+            title={"text": "Form Score Metric Gauge", "font": {"size": 14, "color": "#94A3B8"}},
             gauge={
                 "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#64748B"},
                 "bar": {"color": score_color, "thickness": 0.28},
@@ -408,8 +523,8 @@ if analyze_btn and selected_video_path is not None:
             },
         ))
         fig_gauge.update_layout(
-            paper_bgcolor="#131A2A",
-            plot_bgcolor="#131A2A",
+            paper_bgcolor="#111827",
+            plot_bgcolor="#111827",
             height=280,
             margin=dict(l=25, r=25, t=40, b=25),
         )
@@ -417,7 +532,6 @@ if analyze_btn and selected_video_path is not None:
 
     with radar_col:
         # Biomechanical Spider / Radar Chart (5 Key Athletic Dimensions)
-        # Compute dimension scores normalized to 100
         depth_score = max(0, min(100, 100 - (max(0, avg_depth - 90.0) * 2.0)))
         posture_score = max(0, min(100, 100 - (max(0, avg_torso - 30.0) * 2.5)))
         dtw_distances = [ev["gaps"]["dtw_distance"] for ev in rep_evaluations]
@@ -426,9 +540,8 @@ if analyze_btn and selected_video_path is not None:
         avg_rom = np.mean(rom_scores)
         tempo_consistency = max(50, 100 - (np.std([r["duration_sec"] for r in reps]) * 20.0))
 
-        radar_categories = ["Depth Accuracy", "Trunk Posture", "Kinematic Smoothness", "Range of Motion", "Tempo Consistency"]
+        radar_categories = ["Depth Accuracy", "Trunk Posture", "Smoothness", "Range of Motion", "Tempo"]
         radar_values = [depth_score, posture_score, smoothness_score, avg_rom, tempo_consistency]
-        # Close polygon
         radar_categories_closed = radar_categories + [radar_categories[0]]
         radar_values_closed = radar_values + [radar_values[0]]
 
@@ -443,11 +556,11 @@ if analyze_btn and selected_video_path is not None:
         ))
         fig_radar.update_layout(
             polar=dict(
-                radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color="#64748B"), gridcolor="#334155"),
-                angularaxis=dict(tickfont=dict(size=11, color="#CBD5E1", family="Plus Jakarta Sans"), gridcolor="#334155"),
-                bgcolor="#131A2A",
+                radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color="#64748B"), gridcolor="#1E293B"),
+                angularaxis=dict(tickfont=dict(size=11, color="#CBD5E1", family="Plus Jakarta Sans"), gridcolor="#1E293B"),
+                bgcolor="#111827",
             ),
-            paper_bgcolor="#131A2A",
+            paper_bgcolor="#111827",
             height=280,
             margin=dict(l=35, r=35, t=30, b=25),
             showlegend=False,
@@ -459,13 +572,23 @@ if analyze_btn and selected_video_path is not None:
     # --------------------------------------------------------------------------
     # 3. INTERACTIVE SKELETON SCRUBBER & VIDEO TELEMETRY
     # --------------------------------------------------------------------------
-    st.markdown("### 🎥 Interactive Video & Pose Landmark Scrubber")
-    st.write("Examine the raw video or scrub through the motion frame-by-frame with the 33-point skeletal overlay.")
+    st.markdown("""
+    <div class="section-wrap">
+        <div class="section-bar"></div>
+        <div class="section-title">Interactive Video & Pose Landmark Scrubber</div>
+        <div class="section-desc">Frame-by-Frame 33-Keypoint Verification</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     col_vid, col_pose = st.columns([1.0, 1.0])
 
     with col_vid:
-        st.markdown("**Recorded Workout Video**")
+        st.markdown("""
+        <div style="background:#111827; border:1px solid #1E293B; border-bottom:none; border-radius:8px 8px 0 0; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.75rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em;">Video Feed (Raw Input)</span>
+            <span style="font-size:0.72rem; color:#64748B;">RGB Channel</span>
+        </div>
+        """, unsafe_allow_html=True)
         st.video(str(selected_video_path))
 
     with col_pose:
@@ -473,7 +596,12 @@ if analyze_btn and selected_video_path is not None:
         worst_eval = rep_evaluations[worst_rep_idx]
         worst_abs_frame = worst_eval["worst_moment"]["absolute_frame_idx"]
 
-        st.markdown(f"**Annotated Skeleton Overlay** *(Worst Defect at Frame {worst_abs_frame})*")
+        st.markdown(f"""
+        <div style="background:#111827; border:1px solid #1E293B; border-bottom:none; border-radius:8px 8px 0 0; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.75rem; font-weight:700; color:#38BDF8; text-transform:uppercase; letter-spacing:0.06em;">Skeletal Overlay (33 Joints)</span>
+            <span style="font-size:0.72rem; color:#F59E0B; font-weight:600;">Defect at Frame {worst_abs_frame}</span>
+        </div>
+        """, unsafe_allow_html=True)
         
         # Interactive Frame Scrubber Slider
         scrub_frame = st.slider(
@@ -488,16 +616,31 @@ if analyze_btn and selected_video_path is not None:
         frame_rgb = cv2.cvtColor(annotated_frames[scrub_frame], cv2.COLOR_BGR2RGB)
         st.image(
             frame_rgb,
-            caption=f"Frame {scrub_frame} of {len(annotated_frames)} | Defect Context: {worst_eval['worst_moment']['reason']}",
+            caption=f"Frame {scrub_frame} of {len(annotated_frames)} | Timestamp: {scrub_frame/fps:.2f}s",
             use_container_width=True,
         )
+
+        if abs(scrub_frame - worst_abs_frame) <= 3:
+            st.markdown(f"""
+            <div style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:10px 14px; margin-top:8px;">
+                <span style="color:#F87171; font-weight:700; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em;">Primary Form Defect Detected:</span>
+                <div style="color:#FCA5A5; font-size:0.85rem; margin-top:2px;">{worst_eval['worst_moment']['reason']} (Observed around Frame {worst_abs_frame})</div>
+            </div>
+            """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     # --------------------------------------------------------------------------
     # 4. INTERACTIVE PLOTLY REPETITION DEEP DIVE
     # --------------------------------------------------------------------------
-    st.markdown("### 📈 Interactive Repetition Telemetry & Dynamic Time Warping")
+    st.markdown("""
+    <div class="section-wrap">
+        <div class="section-bar"></div>
+        <div class="section-title">Interactive Repetition Telemetry & Dynamic Time Warping</div>
+        <div class="section-desc">Time-Normalized Kinematic Trajectory Matching</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     tabs = st.tabs([f"Repetition #{i+1} ({ev['overall_score']} pts)" for i, ev in enumerate(rep_evaluations)])
 
     for i, tab in enumerate(tabs):
@@ -510,7 +653,7 @@ if analyze_btn and selected_video_path is not None:
             plot_col, details_col = st.columns([1.45, 1.0])
 
             with plot_col:
-                st.markdown("**Interactive Kinematic Curve Alignment (Plotly)**")
+                st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;'>Kinematic Curve Alignment (Plotly)</div>", unsafe_allow_html=True)
                 norm_percent = np.linspace(0, 100, len(curves["user_norm_knee"]))
                 ref_mean = np.array(curves["ref_mean_knee"])
                 ref_std = np.array(curves["ref_std_knee"])
@@ -551,21 +694,21 @@ if analyze_btn and selected_video_path is not None:
                     hovertemplate="User Angle: %{y:.1f}° at %{x:.0f}%<extra></extra>",
                 ))
 
-                # Highlight Parallel Threshold (90 degrees)
+                # Highlight Target Depth Threshold
                 fig_curve.add_hline(
-                    y=90.0,
+                    y=target_depth,
                     line_dash="dot",
                     line_color="#FBBF24",
-                    annotation_text="Parallel Depth (90°)",
+                    annotation_text=f"Target ({target_depth:.0f}°)",
                     annotation_position="bottom right",
                     annotation_font=dict(color="#FBBF24", size=10),
                 )
 
                 fig_curve.update_layout(
-                    paper_bgcolor="#131A2A",
-                    plot_bgcolor="#131A2A",
+                    paper_bgcolor="#111827",
+                    plot_bgcolor="#111827",
                     xaxis=dict(title="Normalized Repetition Progress (%)", gridcolor="#1E293B", tickfont=dict(color="#94A3B8")),
-                    yaxis=dict(title="Knee Flexion Angle (°)", gridcolor="#1E293B", tickfont=dict(color="#94A3B8")),
+                    yaxis=dict(title=f"{'Knee' if exercise_name == 'squat' else 'Elbow'} Flexion Angle (°)", gridcolor="#1E293B", tickfont=dict(color="#94A3B8")),
                     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="#CBD5E1", size=10)),
                     margin=dict(l=30, r=20, t=30, b=30),
                     height=340,
@@ -573,28 +716,40 @@ if analyze_btn and selected_video_path is not None:
                 st.plotly_chart(fig_curve, use_container_width=True)
 
             with details_col:
-                st.markdown("**Explainable Form Deduction Breakdown**")
+                st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;'>Biomechanical Deductions</div>", unsafe_allow_html=True)
                 st.markdown(f"""
                 <div class="diagnostic-card">
-                    <div style="font-size:0.8rem; color:#64748B; text-transform:uppercase; font-weight:600;">Mathematical Deduction</div>
-                    <div style="font-size:1.6rem; font-weight:800; color:{score_color}; margin:4px 0;">
-                        {eval_data['overall_score']} <span style="font-size:0.95rem; color:#94A3B8;">/ 100 pts ({eval_data['grade']})</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <span style="font-size:0.72rem; color:#64748B; text-transform:uppercase; font-weight:700; letter-spacing:0.06em;">Repetition Grade</span>
+                        <span style="font-size:0.75rem; font-weight:700; color:{u_color}; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:4px;">{eval_data['grade']}</span>
                     </div>
-                    <hr style="border:0; border-top:1px solid #1E293B; margin:8px 0;">
-                    <div style="font-size:0.88rem; color:#E2E8F0; line-height:1.7;">
-                        • <b>Depth Penalty:</b> <code>-{r_penalties['depth_penalty']} pts</code> (Bottom: {r_gaps['user_min_knee']}° | Standard: &le; 90°)<br>
-                        • <b>Trunk Lean:</b> <code>-{r_penalties['torso_penalty']} pts</code> (Peak Lean: {r_gaps['user_peak_torso']}° | Safe: &le; 35°)<br>
-                        • <b>Smoothness:</b> <code>-{r_penalties['trajectory_penalty']} pts</code> (DTW Warp Distance: {r_gaps['dtw_distance']})
+                    <div style="font-size:2rem; font-weight:800; color:{u_color}; line-height:1.1;">
+                        {eval_data['overall_score']} <span style="font-size:1.0rem; color:#64748B; font-weight:600;">/ 100 pts</span>
+                    </div>
+                    <div style="height:1px; background:#1E293B; margin:12px 0;"></div>
+                    <div style="display:flex; flex-direction:column; gap:8px; font-size:0.85rem; color:#E2E8F0;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Depth Penalty (Bottom: {r_gaps['user_min_knee']}°):</span>
+                            <span style="font-family:'JetBrains Mono',monospace; color:{'#F87171' if r_penalties['depth_penalty'] > 0 else '#34D399'}; font-weight:700;">-{r_penalties['depth_penalty']} pts</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Trunk Lean Penalty (Peak: {r_gaps['user_peak_torso']}°):</span>
+                            <span style="font-family:'JetBrains Mono',monospace; color:{'#F87171' if r_penalties['torso_penalty'] > 0 else '#34D399'}; font-weight:700;">-{r_penalties['torso_penalty']} pts</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Trajectory Jitter (DTW: {r_gaps['dtw_distance']}):</span>
+                            <span style="font-family:'JetBrains Mono',monospace; color:{'#F87171' if r_penalties['trajectory_penalty'] > 0 else '#34D399'}; font-weight:700;">-{r_penalties['trajectory_penalty']} pts</span>
+                        </div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                st.markdown("**Coach Lens Recommendations:**")
+                st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin:14px 0 8px 0;'>Coach Lens Recommendations</div>", unsafe_allow_html=True)
                 tips = coach.get_coaching_feedback(eval_data)
                 for t in tips["rule_tips"]:
                     st.markdown(f"""
                     <div class="diagnostic-card" style="padding:10px 14px; margin-bottom:8px; border-left:3px solid #38BDF8;">
-                        <div class="diagnostic-text">💡 {t}</div>
+                        <div style="font-size:0.88rem; color:#CBD5E1; line-height:1.5;">{t}</div>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -603,7 +758,14 @@ if analyze_btn and selected_video_path is not None:
     # --------------------------------------------------------------------------
     # 5. DETAILED AUDIT TELEMETRY LOG
     # --------------------------------------------------------------------------
-    st.markdown("### 📋 Repetition Telemetry Audit Log")
+    st.markdown("""
+    <div class="section-wrap">
+        <div class="section-bar"></div>
+        <div class="section-title">Repetition Telemetry Audit Log</div>
+        <div class="section-desc">Tabular Kinematic Log & CSV Export</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     log_rows = []
     for ev in rep_evaluations:
         log_rows.append({
@@ -620,7 +782,7 @@ if analyze_btn and selected_video_path is not None:
 
     csv_data = log_df.to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="📥 Download Repetition Telemetry CSV Report",
+        label="Download Repetition Telemetry CSV Report",
         data=csv_data,
         file_name=f"{selected_video_path.stem}_coach_lens_evaluation.csv",
         mime="text/csv",

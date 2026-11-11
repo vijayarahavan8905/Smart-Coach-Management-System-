@@ -6,11 +6,11 @@
   "inflection_type": "valley",
   "rep_detection": {
     "standing_threshold": 150.0,
-    "inflection_threshold": 120.0,
-    "min_rom_degrees": 35.0,
-    "min_duration_sec": 1.0,
+    "inflection_threshold": 126.0,
+    "min_rom_degrees": 25.0,
+    "min_duration_sec": 0.8,
     "max_duration_sec": 8.0,
-    "peak_prominence": 25.0
+    "peak_prominence": 15.0
   },
   "form_metrics": {
     "depth": {

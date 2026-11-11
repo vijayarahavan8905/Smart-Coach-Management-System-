@@ -169,6 +169,7 @@ class FormScorer:
         worst_absolute_frame = start_frame_offset + worst_local_idx
 
         result = {
+            "exercise_name": self.exercise_name,
             "overall_score": overall_score,
             "grade": grade,
             "rep_num": rep_metadata.get("rep_num", 1) if rep_metadata else 1,
