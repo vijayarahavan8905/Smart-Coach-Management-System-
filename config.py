@@ -16,11 +16,16 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 # External dataset location (as provided on your Windows Desktop)
-# Note: Path handles spaces ("data set") automatically without escaping issues.
-DATASET_DIR = Path(r"C:\Users\vijay\OneDrive\Documents\Desktop\data set")
+# Supports the root 'data set' folder and the 'data set/squats' subfolder
+DATASET_ROOT = Path(r"C:\Users\vijay\OneDrive\Documents\Desktop\data set")
+try:
+    DATASET_DIR = DATASET_ROOT / "squats" if (DATASET_ROOT / "squats").exists() else DATASET_ROOT
+except Exception:
+    DATASET_DIR = DATASET_ROOT
 
 # Local data directories (inside the project, not committing large files to git)
 DATA_DIR = PROJECT_ROOT / "data"
+SAMPLES_DIR = DATA_DIR / "samples"          # Local benchmark sample clips
 CACHE_DIR = DATA_DIR / "cache"              # Pose extraction parquet / csv caches
 REPORTS_DIR = DATA_DIR / "reports"          # Audit and evaluation reports
 TEMPLATES_DIR = DATA_DIR / "templates"      # Reference form templates (Module 4)

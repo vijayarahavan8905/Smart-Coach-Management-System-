@@ -21,6 +21,8 @@ data/reference_videos/
 
 # Intermediate caches & model binaries
 data/cache/
+data/samples/
+scratch/
 *.task
 *.parquet
 *.pkl

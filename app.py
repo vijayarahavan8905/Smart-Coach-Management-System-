@@ -23,6 +23,8 @@ import plotly.express as px
 # Project modules
 from config import (
     DATASET_DIR,
+    DATA_DIR,
+    SAMPLES_DIR,
     CACHE_DIR,
     TEMPLATES_DIR,
     OUTPUTS_DIR,
@@ -277,13 +279,29 @@ with st.sidebar:
 
     selected_video_path = None
     if input_source == "Dataset Benchmark Sample":
-        sample_options = ["squat_10.mp4", "squat_13.mp4", "squat_15.mp4", "squat_14.mp4"]
-        chosen_sample = st.selectbox("Select Sample Clip", sample_options, index=0)
-        potential_path = DATASET_DIR / chosen_sample
-        if potential_path.exists():
-            selected_video_path = potential_path
+        # Search candidate locations for exercise video clips
+        candidate_dirs = [
+            SAMPLES_DIR,
+            Path(r"C:\Users\vijay\OneDrive\Documents\Desktop\data set\squats"),
+            DATASET_DIR,
+            Path(r"C:\Users\vijay\OneDrive\Documents\Desktop\data set"),
+        ]
+        sample_dict = {}
+        for cdir in candidate_dirs:
+            try:
+                if cdir and cdir.exists():
+                    for vfile in sorted(cdir.glob("*.mp4")):
+                        if vfile.name not in sample_dict:
+                            sample_dict[vfile.name] = vfile
+            except Exception:
+                continue
+
+        if sample_dict:
+            chosen_sample = st.selectbox("Select Sample Clip", list(sample_dict.keys()), index=0)
+            selected_video_path = sample_dict[chosen_sample]
+            st.caption(f"Benchmark Clip: {chosen_sample} ({selected_video_path.stat().st_size // 1024} KB)")
         else:
-            st.warning("Sample not found on local disk. Please upload video.")
+            st.warning("No benchmark clips found. Please upload a workout video below.")
     else:
         uploaded_file = st.file_uploader(
             "Upload Workout Video",
@@ -522,158 +540,101 @@ if analyze_btn and selected_video_path is not None:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ==========================================================================
-    # 2. MAIN RESULTS WORKSPACE (TABBED COCKPIT)
-    # ==========================================================================
-    tab_profile, tab_studio, tab_dtw, tab_audit = st.tabs([
-        "Performance Profiler & Coaching",
-        "Video & Skeletal Studio",
-        "DTW Kinematic Curves",
-        "Telemetry Audit & Export",
-    ])
+    # Calculate metrics, best/worst rep, coaching advice and figures
+    worst_rep_idx = int(np.argmin(overall_scores))
+    worst_eval = rep_evaluations[worst_rep_idx]
+    best_rep_idx = int(np.argmax(overall_scores))
+    best_eval = rep_evaluations[best_rep_idx]
+    tips = coach.get_coaching_feedback(worst_eval)
+    worst_abs_frame = worst_eval["worst_moment"]["absolute_frame_idx"]
+
+    # Biomechanical Form Score Circular Gauge
+    fig_gauge = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=avg_score,
+        number={"suffix": " / 100", "font": {"size": 32, "color": "#F8FAFC", "family": "Plus Jakarta Sans"}},
+        title={"text": "Biomechanical Form Score", "font": {"size": 13, "color": "#94A3B8"}},
+        gauge={
+            "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#64748B"},
+            "bar": {"color": score_color, "thickness": 0.28},
+            "bgcolor": "#1E293B",
+            "borderwidth": 1,
+            "bordercolor": "#334155",
+            "steps": [
+                {"range": [0, 60], "color": "rgba(239, 68, 68, 0.15)"},
+                {"range": [60, 80], "color": "rgba(245, 158, 11, 0.15)"},
+                {"range": [80, 100], "color": "rgba(16, 185, 129, 0.15)"},
+            ],
+            "threshold": {
+                "line": {"color": "#38BDF8", "width": 3},
+                "thickness": 0.75,
+                "value": 90.0,
+            },
+        },
+    ))
+    fig_gauge.update_layout(
+        paper_bgcolor="#111827",
+        plot_bgcolor="#111827",
+        height=265,
+        margin=dict(l=20, r=20, t=35, b=20),
+    )
+
+    # Biomechanical Spider Radar Chart
+    depth_score = max(0, min(100, 100 - (max(0, avg_depth - target_depth) * 2.0)))
+    posture_score = max(0, min(100, 100 - (max(0, avg_torso - 30.0) * 2.5)))
+    dtw_distances = [ev["gaps"]["dtw_distance"] for ev in rep_evaluations]
+    smoothness_score = max(0, min(100, 100 - (np.mean(dtw_distances) * 2.5)))
+    rom_scores = [min(100, (r["rom_degrees"] / 140.0) * 100.0) for r in reps]
+    avg_rom = np.mean(rom_scores)
+    tempo_consistency = max(50, 100 - (np.std([r["duration_sec"] for r in reps]) * 20.0))
+
+    radar_categories = ["Depth", "Posture", "Smoothness", "ROM", "Tempo"]
+    radar_values = [depth_score, posture_score, smoothness_score, avg_rom, tempo_consistency]
+    radar_categories_closed = radar_categories + [radar_categories[0]]
+    radar_values_closed = radar_values + [radar_values[0]]
+
+    fig_radar = go.Figure()
+    fig_radar.add_trace(go.Scatterpolar(
+        r=radar_values_closed,
+        theta=radar_categories_closed,
+        fill="toself",
+        fillcolor="rgba(56, 189, 248, 0.2)",
+        line=dict(color="#38BDF8", width=2.5),
+        name="Lifter Performance",
+    ))
+    fig_radar.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=8, color="#64748B"), gridcolor="#1E293B"),
+            angularaxis=dict(tickfont=dict(size=10, color="#CBD5E1", family="Plus Jakarta Sans"), gridcolor="#1E293B"),
+            bgcolor="#111827",
+        ),
+        paper_bgcolor="#111827",
+        height=265,
+        margin=dict(l=30, r=30, t=25, b=20),
+        showlegend=False,
+    )
 
     # --------------------------------------------------------------------------
-    # TAB 1: BIOMECHANICAL PERFORMANCE PROFILER & COACHING
+    # MODULAR RENDER FUNCTIONS
     # --------------------------------------------------------------------------
-    with tab_profile:
-        gauge_col, radar_col = st.columns([1.0, 1.25])
-
-        with gauge_col:
-            fig_gauge = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=avg_score,
-                number={"suffix": " / 100", "font": {"size": 34, "color": "#F8FAFC", "family": "Plus Jakarta Sans"}},
-                title={"text": "Biomechanical Form Score", "font": {"size": 14, "color": "#94A3B8"}},
-                gauge={
-                    "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#64748B"},
-                    "bar": {"color": score_color, "thickness": 0.28},
-                    "bgcolor": "#1E293B",
-                    "borderwidth": 1,
-                    "bordercolor": "#334155",
-                    "steps": [
-                        {"range": [0, 60], "color": "rgba(239, 68, 68, 0.15)"},
-                        {"range": [60, 80], "color": "rgba(245, 158, 11, 0.15)"},
-                        {"range": [80, 100], "color": "rgba(16, 185, 129, 0.15)"},
-                    ],
-                    "threshold": {
-                        "line": {"color": "#38BDF8", "width": 3},
-                        "thickness": 0.75,
-                        "value": 90.0,
-                    },
-                },
-            ))
-            fig_gauge.update_layout(
-                paper_bgcolor="#111827",
-                plot_bgcolor="#111827",
-                height=290,
-                margin=dict(l=25, r=25, t=40, b=25),
-            )
-            st.plotly_chart(fig_gauge, use_container_width=True)
-
-        with radar_col:
-            depth_score = max(0, min(100, 100 - (max(0, avg_depth - target_depth) * 2.0)))
-            posture_score = max(0, min(100, 100 - (max(0, avg_torso - 30.0) * 2.5)))
-            dtw_distances = [ev["gaps"]["dtw_distance"] for ev in rep_evaluations]
-            smoothness_score = max(0, min(100, 100 - (np.mean(dtw_distances) * 2.5)))
-            rom_scores = [min(100, (r["rom_degrees"] / 140.0) * 100.0) for r in reps]
-            avg_rom = np.mean(rom_scores)
-            tempo_consistency = max(50, 100 - (np.std([r["duration_sec"] for r in reps]) * 20.0))
-
-            radar_categories = ["Depth Accuracy", "Trunk Posture", "Smoothness", "Range of Motion", "Tempo"]
-            radar_values = [depth_score, posture_score, smoothness_score, avg_rom, tempo_consistency]
-            radar_categories_closed = radar_categories + [radar_categories[0]]
-            radar_values_closed = radar_values + [radar_values[0]]
-
-            fig_radar = go.Figure()
-            fig_radar.add_trace(go.Scatterpolar(
-                r=radar_values_closed,
-                theta=radar_categories_closed,
-                fill="toself",
-                fillcolor="rgba(56, 189, 248, 0.2)",
-                line=dict(color="#38BDF8", width=2.5),
-                name="Lifter Performance",
-            ))
-            fig_radar.update_layout(
-                polar=dict(
-                    radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color="#64748B"), gridcolor="#1E293B"),
-                    angularaxis=dict(tickfont=dict(size=11, color="#CBD5E1", family="Plus Jakarta Sans"), gridcolor="#1E293B"),
-                    bgcolor="#111827",
-                ),
-                paper_bgcolor="#111827",
-                height=290,
-                margin=dict(l=35, r=35, t=30, b=25),
-                showlegend=False,
-            )
-            st.plotly_chart(fig_radar, use_container_width=True)
-
-        st.markdown("<div style='height: 1px; background: #1E293B; margin: 20px 0 16px 0;'></div>", unsafe_allow_html=True)
+    def render_studio_component(is_unified=True):
+        st.markdown("""
+        <div style="background:#111827; border:1px solid #1E293B; border-radius:8px 8px 0 0; padding:10px 14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.75rem; font-weight:700; color:#38BDF8; text-transform:uppercase; letter-spacing:0.06em;">Visual Kinematic Studio</span>
+            <span style="font-size:0.72rem; color:#64748B;">MediaPipe BlazePose 3D</span>
+        </div>
+        """, unsafe_allow_html=True)
         
-        worst_rep_idx = int(np.argmin(overall_scores))
-        worst_eval = rep_evaluations[worst_rep_idx]
-        best_rep_idx = int(np.argmax(overall_scores))
-        best_eval = rep_evaluations[best_rep_idx]
-        tips = coach.get_coaching_feedback(worst_eval)
-
-        col_t1, col_t2 = st.columns(2)
-        with col_t1:
-            st.markdown(f"""
-            <div class="diagnostic-card" style="border-left: 3px solid #F87171;">
-                <div style="font-size: 0.72rem; font-weight: 700; color: #F87171; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Primary Technique Observation</div>
-                <div style="font-size: 0.95rem; color: #F8FAFC; font-weight: 600;">{worst_eval['worst_moment']['reason']}</div>
-                <div style="font-size: 0.82rem; color: #94A3B8; margin-top: 6px;">Observed in Repetition #{worst_eval['rep_num']} (Score: {worst_eval['overall_score']} / 100)</div>
-            </div>
-            """, unsafe_allow_html=True)
-        with col_t2:
-            st.markdown(f"""
-            <div class="diagnostic-card" style="border-left: 3px solid #34D399;">
-                <div style="font-size: 0.72rem; font-weight: 700; color: #34D399; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Peak Execution Benchmark</div>
-                <div style="font-size: 0.95rem; color: #F8FAFC; font-weight: 600;">Repetition #{best_eval['rep_num']} Form Standard</div>
-                <div style="font-size: 0.82rem; color: #94A3B8; margin-top: 6px;">Achieved highest biomechanical score ({best_eval['overall_score']} / 100 • {best_eval['grade']})</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.markdown("<div style='font-size: 0.8rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.06em; margin: 14px 0 8px 0;'>Kinematic Coaching Directives</div>", unsafe_allow_html=True)
-        for t in tips["rule_tips"]:
-            st.markdown(f"""
-            <div class="diagnostic-card" style="padding: 12px 16px; margin-bottom: 8px; border-left: 3px solid #38BDF8;">
-                <div style="font-size: 0.88rem; color: #CBD5E1; line-height: 1.55;">• {t}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-    # --------------------------------------------------------------------------
-    # TAB 2: SYNCHRONOUS VIDEO & SKELETAL STUDIO
-    # --------------------------------------------------------------------------
-    with tab_studio:
-        col_vid, col_pose = st.columns([1.0, 1.0])
-
-        with col_vid:
-            st.markdown("""
-            <div style="background:#111827; border:1px solid #1E293B; border-bottom:none; border-radius:8px 8px 0 0; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:0.75rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em;">Video Feed (Raw Input)</span>
-                <span style="font-size:0.72rem; color:#64748B;">RGB Channel</span>
-            </div>
-            """, unsafe_allow_html=True)
-            st.video(str(selected_video_path))
-
-        with col_pose:
-            worst_rep_idx = int(np.argmin(overall_scores))
-            worst_eval = rep_evaluations[worst_rep_idx]
-            worst_abs_frame = worst_eval["worst_moment"]["absolute_frame_idx"]
-
-            st.markdown(f"""
-            <div style="background:#111827; border:1px solid #1E293B; border-bottom:none; border-radius:8px 8px 0 0; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:0.75rem; font-weight:700; color:#38BDF8; text-transform:uppercase; letter-spacing:0.06em;">Skeletal Overlay (33 Joints)</span>
-                <span style="font-size:0.72rem; color:#F59E0B; font-weight:600;">Defect at Frame {worst_abs_frame}</span>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Interactive Frame Scrubber Slider
+        vis_tab1, vis_tab2 = st.tabs(["BlazePose Joint Overlay", "Raw Workout Video"])
+        with vis_tab1:
+            scrub_key = f"scrub_{'unified' if is_unified else 'tabbed'}"
             scrub_frame = st.slider(
                 "Scrub Video Frames:",
                 min_value=0,
                 max_value=len(annotated_frames) - 1,
                 value=min(worst_abs_frame, len(annotated_frames) - 1),
                 step=1,
+                key=scrub_key,
                 help="Drag slider to inspect joint tracking across any frame.",
             )
 
@@ -692,10 +653,43 @@ if analyze_btn and selected_video_path is not None:
                 </div>
                 """, unsafe_allow_html=True)
 
-    # --------------------------------------------------------------------------
-    # TAB 3: FAST-DTW KINEMATIC CURVES
-    # --------------------------------------------------------------------------
-    with tab_dtw:
+        with vis_tab2:
+            st.video(str(selected_video_path))
+
+    def render_analytics_component():
+        g_col, r_col = st.columns([1.0, 1.1])
+        with g_col:
+            st.plotly_chart(fig_gauge, use_container_width=True)
+        with r_col:
+            st.plotly_chart(fig_radar, use_container_width=True)
+
+        st.markdown("<div style='height: 1px; background: #1E293B; margin: 12px 0 12px 0;'></div>", unsafe_allow_html=True)
+        
+        st.markdown(f"""
+        <div class="diagnostic-card" style="border-left: 3px solid #F87171; margin-bottom:8px;">
+            <div style="font-size: 0.72rem; font-weight: 700; color: #F87171; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px;">Primary Technique Observation</div>
+            <div style="font-size: 0.92rem; color: #F8FAFC; font-weight: 600;">{worst_eval['worst_moment']['reason']}</div>
+            <div style="font-size: 0.78rem; color: #94A3B8; margin-top: 4px;">Observed in Repetition #{worst_eval['rep_num']} (Score: {worst_eval['overall_score']} / 100)</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(f"""
+        <div class="diagnostic-card" style="border-left: 3px solid #34D399; margin-bottom:8px;">
+            <div style="font-size: 0.72rem; font-weight: 700; color: #34D399; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px;">Peak Execution Benchmark</div>
+            <div style="font-size: 0.92rem; color: #F8FAFC; font-weight: 600;">Repetition #{best_eval['rep_num']} Form Standard</div>
+            <div style="font-size: 0.78rem; color: #94A3B8; margin-top: 4px;">Highest biomechanical score: {best_eval['overall_score']} / 100 ({best_eval['grade']})</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<div style='font-size: 0.78rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.06em; margin: 12px 0 8px 0;'>Kinematic Coaching Directives</div>", unsafe_allow_html=True)
+        for t in tips["rule_tips"]:
+            st.markdown(f"""
+            <div class="diagnostic-card" style="padding: 10px 14px; margin-bottom: 6px; border-left: 3px solid #38BDF8;">
+                <div style="font-size: 0.85rem; color: #CBD5E1; line-height: 1.45;">• {t}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    def render_dtw_component():
         st.markdown("""
         <div style="background: #111827; border: 1px solid #1E293B; border-radius: 10px; padding: 12px 18px; margin-bottom: 16px;">
             <div style="font-size: 0.75rem; font-weight: 700; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.06em;">Dynamic Time Warping (FastDTW) Trajectory Comparison</div>
@@ -725,7 +719,6 @@ if analyze_btn and selected_video_path is not None:
 
                     fig_curve = go.Figure()
 
-                    # Golden Corridor (±1 Standard Deviation Shading)
                     fig_curve.add_trace(go.Scatter(
                         x=np.concatenate([norm_percent, norm_percent[::-1]]),
                         y=np.concatenate([ref_mean + ref_std, (ref_mean - ref_std)[::-1]]),
@@ -737,7 +730,6 @@ if analyze_btn and selected_video_path is not None:
                         name="Acceptable Corridor (±1 Std Dev)",
                     ))
 
-                    # Golden Reference Mean Line
                     fig_curve.add_trace(go.Scatter(
                         x=norm_percent,
                         y=ref_mean,
@@ -747,7 +739,6 @@ if analyze_btn and selected_video_path is not None:
                         hovertemplate="Reference: %{y:.1f}°<extra></extra>",
                     ))
 
-                    # User's Actual Repetition Curve
                     u_color = "#34D399" if eval_data["overall_score"] >= 80 else "#F87171"
                     fig_curve.add_trace(go.Scatter(
                         x=norm_percent,
@@ -758,7 +749,6 @@ if analyze_btn and selected_video_path is not None:
                         hovertemplate="User Angle: %{y:.1f}° at %{x:.0f}%<extra></extra>",
                     ))
 
-                    # Highlight Target Depth Threshold
                     fig_curve.add_hline(
                         y=target_depth,
                         line_dash="dot",
@@ -808,19 +798,16 @@ if analyze_btn and selected_video_path is not None:
                     </div>
                     """, unsafe_allow_html=True)
 
-                    st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin:14px 0 8px 0;'>Coach Lens Recommendations</div>", unsafe_allow_html=True)
-                    tips = coach.get_coaching_feedback(eval_data)
-                    for t in tips["rule_tips"]:
+                    st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin:14px 0 8px 0;'>Coach Recommendations</div>", unsafe_allow_html=True)
+                    rep_tips = coach.get_coaching_feedback(eval_data)
+                    for t in rep_tips["rule_tips"]:
                         st.markdown(f"""
                         <div class="diagnostic-card" style="padding:10px 14px; margin-bottom:8px; border-left:3px solid #38BDF8;">
                             <div style="font-size:0.88rem; color:#CBD5E1; line-height:1.5;">{t}</div>
                         </div>
                         """, unsafe_allow_html=True)
 
-    # --------------------------------------------------------------------------
-    # TAB 4: REPETITION AUDIT LOG & EXPORT
-    # --------------------------------------------------------------------------
-    with tab_audit:
+    def render_audit_component():
         m1, m2, m3, m4 = st.columns(4)
         with m1:
             st.markdown(f"""
@@ -874,3 +861,51 @@ if analyze_btn and selected_video_path is not None:
             file_name=f"{selected_video_path.stem}_coach_lens_evaluation.csv",
             mime="text/csv",
         )
+
+    # ==========================================================================
+    # 2. WORKSPACE PRESENTATION LAYOUT
+    # ==========================================================================
+    c_mode_l, c_mode_r = st.columns([1.5, 1.2])
+    with c_mode_l:
+        st.markdown("""
+        <div style="font-size:0.75rem; font-weight:700; color:#38BDF8; text-transform:uppercase; letter-spacing:0.06em; margin-top:6px;">
+            Biomechanical Cockpit Layout
+        </div>
+        """, unsafe_allow_html=True)
+    with c_mode_r:
+        layout_mode = st.radio(
+            "Cockpit Mode",
+            ["Unified Dual-Pane Cockpit", "Detailed Tabbed View"],
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+
+    if layout_mode == "Unified Dual-Pane Cockpit":
+        # Side-by-Side Dual-Pane Layout: Video/Skeleton on Left, Analytics/Radar on Right
+        left_col, right_col = st.columns([1.05, 0.95], gap="medium")
+        with left_col:
+            render_studio_component(is_unified=True)
+        with right_col:
+            render_analytics_component()
+
+        st.markdown("<div style='height: 1px; background: #1E293B; margin: 28px 0 20px 0;'></div>", unsafe_allow_html=True)
+        render_dtw_component()
+
+        st.markdown("<div style='height: 1px; background: #1E293B; margin: 28px 0 20px 0;'></div>", unsafe_allow_html=True)
+        render_audit_component()
+
+    else:
+        tab_profile, tab_studio, tab_dtw, tab_audit = st.tabs([
+            "Performance Profiler & Coaching",
+            "Video & Skeletal Studio",
+            "DTW Kinematic Curves",
+            "Telemetry Audit & Export",
+        ])
+        with tab_profile:
+            render_analytics_component()
+        with tab_studio:
+            render_studio_component(is_unified=False)
+        with tab_dtw:
+            render_dtw_component()
+        with tab_audit:
+            render_audit_component()
