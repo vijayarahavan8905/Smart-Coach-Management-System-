@@ -368,6 +368,44 @@ if not analyze_btn and selected_video_path is None:
         </div>
         """, unsafe_allow_html=True)
 
+    st.markdown("""
+    <div style="background: #111827; border: 1px solid #1E293B; border-radius: 12px; padding: 20px 24px; margin-top: 22px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+            <div>
+                <span style="font-size: 0.72rem; font-weight: 700; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.08em;">Kinematic Benchmark Database</span>
+                <div style="font-size: 1.1rem; font-weight: 800; color: #F8FAFC; margin-top: 2px;">Clinical Reference Specifications</div>
+            </div>
+            <span style="font-size: 0.72rem; color: #34D399; font-weight: 600; background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); padding: 3px 10px; border-radius: 999px;">CALIBRATED STANDARDS</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+            <div style="background: #182235; border: 1px solid #23324D; border-radius: 8px; padding: 14px 16px;">
+                <div style="color: #38BDF8; font-weight: 700; font-size: 0.95rem;">Barbell Squat</div>
+                <div style="color: #94A3B8; font-size: 0.82rem; margin-top: 6px; line-height: 1.6;">
+                    • <b>Target Depth:</b> Knee Flexion &le; 90°<br>
+                    • <b>Torso Stability:</b> Forward Lean &le; 35°<br>
+                    • <b>Key Plane:</b> Sagittal (Side View)
+                </div>
+            </div>
+            <div style="background: #182235; border: 1px solid #23324D; border-radius: 8px; padding: 14px 16px;">
+                <div style="color: #34D399; font-weight: 700; font-size: 0.95rem;">Standard Push-up</div>
+                <div style="color: #94A3B8; font-size: 0.82rem; margin-top: 6px; line-height: 1.6;">
+                    • <b>Chest Depth:</b> Elbow Flexion &le; 90°<br>
+                    • <b>Plank Stability:</b> Trunk Deviation &le; 20°<br>
+                    • <b>Key Plane:</b> Lateral Arm Flexion
+                </div>
+            </div>
+            <div style="background: #182235; border: 1px solid #23324D; border-radius: 8px; padding: 14px 16px;">
+                <div style="color: #A78BFA; font-weight: 700; font-size: 0.95rem;">Barbell Biceps Curl</div>
+                <div style="color: #94A3B8; font-size: 0.82rem; margin-top: 6px; line-height: 1.6;">
+                    • <b>Peak Squeeze:</b> Elbow Flexion &le; 65°<br>
+                    • <b>Strict Form:</b> Elbow Forward Drift &le; 15°<br>
+                    • <b>Key Plane:</b> Upper Arm Isolation
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 # ==============================================================================
 # PROCESSING & ANALYTICS PIPELINE
@@ -484,306 +522,355 @@ if analyze_btn and selected_video_path is not None:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # --------------------------------------------------------------------------
-    # 2. DUAL RADAR & GAUGE VISUALIZATION (PLOTLY)
-    # --------------------------------------------------------------------------
-    st.markdown("""
-    <div class="section-wrap">
-        <div class="section-bar"></div>
-        <div class="section-title">Athletic Biomechanical Profiler</div>
-        <div class="section-desc">Gauge & 5-Axis Spider Telemetry</div>
-    </div>
-    """, unsafe_allow_html=True)
+    # ==========================================================================
+    # 2. MAIN RESULTS WORKSPACE (TABBED COCKPIT)
+    # ==========================================================================
+    tab_profile, tab_studio, tab_dtw, tab_audit = st.tabs([
+        "Performance Profiler & Coaching",
+        "Video & Skeletal Studio",
+        "DTW Kinematic Curves",
+        "Telemetry Audit & Export",
+    ])
 
-    gauge_col, radar_col = st.columns([1.0, 1.25])
+    # --------------------------------------------------------------------------
+    # TAB 1: BIOMECHANICAL PERFORMANCE PROFILER & COACHING
+    # --------------------------------------------------------------------------
+    with tab_profile:
+        gauge_col, radar_col = st.columns([1.0, 1.25])
 
-    with gauge_col:
-        # Radial Gauge Indicator for Overall Form Score
-        fig_gauge = go.Figure(go.Indicator(
-            mode="gauge+number",
-            value=avg_score,
-            number={"suffix": " / 100", "font": {"size": 32, "color": "#F8FAFC", "family": "Plus Jakarta Sans"}},
-            title={"text": "Form Score Metric Gauge", "font": {"size": 14, "color": "#94A3B8"}},
-            gauge={
-                "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#64748B"},
-                "bar": {"color": score_color, "thickness": 0.28},
-                "bgcolor": "#1E293B",
-                "borderwidth": 1,
-                "bordercolor": "#334155",
-                "steps": [
-                    {"range": [0, 60], "color": "rgba(239, 68, 68, 0.15)"},
-                    {"range": [60, 80], "color": "rgba(245, 158, 11, 0.15)"},
-                    {"range": [80, 100], "color": "rgba(16, 185, 129, 0.15)"},
-                ],
-                "threshold": {
-                    "line": {"color": "#38BDF8", "width": 3},
-                    "thickness": 0.75,
-                    "value": 90.0,
+        with gauge_col:
+            fig_gauge = go.Figure(go.Indicator(
+                mode="gauge+number",
+                value=avg_score,
+                number={"suffix": " / 100", "font": {"size": 34, "color": "#F8FAFC", "family": "Plus Jakarta Sans"}},
+                title={"text": "Biomechanical Form Score", "font": {"size": 14, "color": "#94A3B8"}},
+                gauge={
+                    "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#64748B"},
+                    "bar": {"color": score_color, "thickness": 0.28},
+                    "bgcolor": "#1E293B",
+                    "borderwidth": 1,
+                    "bordercolor": "#334155",
+                    "steps": [
+                        {"range": [0, 60], "color": "rgba(239, 68, 68, 0.15)"},
+                        {"range": [60, 80], "color": "rgba(245, 158, 11, 0.15)"},
+                        {"range": [80, 100], "color": "rgba(16, 185, 129, 0.15)"},
+                    ],
+                    "threshold": {
+                        "line": {"color": "#38BDF8", "width": 3},
+                        "thickness": 0.75,
+                        "value": 90.0,
+                    },
                 },
-            },
-        ))
-        fig_gauge.update_layout(
-            paper_bgcolor="#111827",
-            plot_bgcolor="#111827",
-            height=280,
-            margin=dict(l=25, r=25, t=40, b=25),
-        )
-        st.plotly_chart(fig_gauge, use_container_width=True)
+            ))
+            fig_gauge.update_layout(
+                paper_bgcolor="#111827",
+                plot_bgcolor="#111827",
+                height=290,
+                margin=dict(l=25, r=25, t=40, b=25),
+            )
+            st.plotly_chart(fig_gauge, use_container_width=True)
 
-    with radar_col:
-        # Biomechanical Spider / Radar Chart (5 Key Athletic Dimensions)
-        depth_score = max(0, min(100, 100 - (max(0, avg_depth - 90.0) * 2.0)))
-        posture_score = max(0, min(100, 100 - (max(0, avg_torso - 30.0) * 2.5)))
-        dtw_distances = [ev["gaps"]["dtw_distance"] for ev in rep_evaluations]
-        smoothness_score = max(0, min(100, 100 - (np.mean(dtw_distances) * 2.5)))
-        rom_scores = [min(100, (r["rom_degrees"] / 140.0) * 100.0) for r in reps]
-        avg_rom = np.mean(rom_scores)
-        tempo_consistency = max(50, 100 - (np.std([r["duration_sec"] for r in reps]) * 20.0))
+        with radar_col:
+            depth_score = max(0, min(100, 100 - (max(0, avg_depth - target_depth) * 2.0)))
+            posture_score = max(0, min(100, 100 - (max(0, avg_torso - 30.0) * 2.5)))
+            dtw_distances = [ev["gaps"]["dtw_distance"] for ev in rep_evaluations]
+            smoothness_score = max(0, min(100, 100 - (np.mean(dtw_distances) * 2.5)))
+            rom_scores = [min(100, (r["rom_degrees"] / 140.0) * 100.0) for r in reps]
+            avg_rom = np.mean(rom_scores)
+            tempo_consistency = max(50, 100 - (np.std([r["duration_sec"] for r in reps]) * 20.0))
 
-        radar_categories = ["Depth Accuracy", "Trunk Posture", "Smoothness", "Range of Motion", "Tempo"]
-        radar_values = [depth_score, posture_score, smoothness_score, avg_rom, tempo_consistency]
-        radar_categories_closed = radar_categories + [radar_categories[0]]
-        radar_values_closed = radar_values + [radar_values[0]]
+            radar_categories = ["Depth Accuracy", "Trunk Posture", "Smoothness", "Range of Motion", "Tempo"]
+            radar_values = [depth_score, posture_score, smoothness_score, avg_rom, tempo_consistency]
+            radar_categories_closed = radar_categories + [radar_categories[0]]
+            radar_values_closed = radar_values + [radar_values[0]]
 
-        fig_radar = go.Figure()
-        fig_radar.add_trace(go.Scatterpolar(
-            r=radar_values_closed,
-            theta=radar_categories_closed,
-            fill="toself",
-            fillcolor="rgba(56, 189, 248, 0.2)",
-            line=dict(color="#38BDF8", width=2.5),
-            name="Lifter Performance",
-        ))
-        fig_radar.update_layout(
-            polar=dict(
-                radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color="#64748B"), gridcolor="#1E293B"),
-                angularaxis=dict(tickfont=dict(size=11, color="#CBD5E1", family="Plus Jakarta Sans"), gridcolor="#1E293B"),
-                bgcolor="#111827",
-            ),
-            paper_bgcolor="#111827",
-            height=280,
-            margin=dict(l=35, r=35, t=30, b=25),
-            showlegend=False,
-        )
-        st.plotly_chart(fig_radar, use_container_width=True)
+            fig_radar = go.Figure()
+            fig_radar.add_trace(go.Scatterpolar(
+                r=radar_values_closed,
+                theta=radar_categories_closed,
+                fill="toself",
+                fillcolor="rgba(56, 189, 248, 0.2)",
+                line=dict(color="#38BDF8", width=2.5),
+                name="Lifter Performance",
+            ))
+            fig_radar.update_layout(
+                polar=dict(
+                    radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color="#64748B"), gridcolor="#1E293B"),
+                    angularaxis=dict(tickfont=dict(size=11, color="#CBD5E1", family="Plus Jakarta Sans"), gridcolor="#1E293B"),
+                    bgcolor="#111827",
+                ),
+                paper_bgcolor="#111827",
+                height=290,
+                margin=dict(l=35, r=35, t=30, b=25),
+                showlegend=False,
+            )
+            st.plotly_chart(fig_radar, use_container_width=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # --------------------------------------------------------------------------
-    # 3. INTERACTIVE SKELETON SCRUBBER & VIDEO TELEMETRY
-    # --------------------------------------------------------------------------
-    st.markdown("""
-    <div class="section-wrap">
-        <div class="section-bar"></div>
-        <div class="section-title">Interactive Video & Pose Landmark Scrubber</div>
-        <div class="section-desc">Frame-by-Frame 33-Keypoint Verification</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    col_vid, col_pose = st.columns([1.0, 1.0])
-
-    with col_vid:
-        st.markdown("""
-        <div style="background:#111827; border:1px solid #1E293B; border-bottom:none; border-radius:8px 8px 0 0; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:0.75rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em;">Video Feed (Raw Input)</span>
-            <span style="font-size:0.72rem; color:#64748B;">RGB Channel</span>
-        </div>
-        """, unsafe_allow_html=True)
-        st.video(str(selected_video_path))
-
-    with col_pose:
+        st.markdown("<div style='height: 1px; background: #1E293B; margin: 20px 0 16px 0;'></div>", unsafe_allow_html=True)
+        
         worst_rep_idx = int(np.argmin(overall_scores))
         worst_eval = rep_evaluations[worst_rep_idx]
-        worst_abs_frame = worst_eval["worst_moment"]["absolute_frame_idx"]
+        best_rep_idx = int(np.argmax(overall_scores))
+        best_eval = rep_evaluations[best_rep_idx]
+        tips = coach.get_coaching_feedback(worst_eval)
 
-        st.markdown(f"""
-        <div style="background:#111827; border:1px solid #1E293B; border-bottom:none; border-radius:8px 8px 0 0; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:0.75rem; font-weight:700; color:#38BDF8; text-transform:uppercase; letter-spacing:0.06em;">Skeletal Overlay (33 Joints)</span>
-            <span style="font-size:0.72rem; color:#F59E0B; font-weight:600;">Defect at Frame {worst_abs_frame}</span>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Interactive Frame Scrubber Slider
-        scrub_frame = st.slider(
-            "Scrub Video Frames:",
-            min_value=0,
-            max_value=len(annotated_frames) - 1,
-            value=min(worst_abs_frame, len(annotated_frames) - 1),
-            step=1,
-            help="Drag slider to inspect joint tracking across any frame.",
-        )
-
-        frame_rgb = cv2.cvtColor(annotated_frames[scrub_frame], cv2.COLOR_BGR2RGB)
-        st.image(
-            frame_rgb,
-            caption=f"Frame {scrub_frame} of {len(annotated_frames)} | Timestamp: {scrub_frame/fps:.2f}s",
-            use_container_width=True,
-        )
-
-        if abs(scrub_frame - worst_abs_frame) <= 3:
+        col_t1, col_t2 = st.columns(2)
+        with col_t1:
             st.markdown(f"""
-            <div style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:10px 14px; margin-top:8px;">
-                <span style="color:#F87171; font-weight:700; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em;">Primary Form Defect Detected:</span>
-                <div style="color:#FCA5A5; font-size:0.85rem; margin-top:2px;">{worst_eval['worst_moment']['reason']} (Observed around Frame {worst_abs_frame})</div>
+            <div class="diagnostic-card" style="border-left: 3px solid #F87171;">
+                <div style="font-size: 0.72rem; font-weight: 700; color: #F87171; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Primary Technique Observation</div>
+                <div style="font-size: 0.95rem; color: #F8FAFC; font-weight: 600;">{worst_eval['worst_moment']['reason']}</div>
+                <div style="font-size: 0.82rem; color: #94A3B8; margin-top: 6px;">Observed in Repetition #{worst_eval['rep_num']} (Score: {worst_eval['overall_score']} / 100)</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with col_t2:
+            st.markdown(f"""
+            <div class="diagnostic-card" style="border-left: 3px solid #34D399;">
+                <div style="font-size: 0.72rem; font-weight: 700; color: #34D399; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Peak Execution Benchmark</div>
+                <div style="font-size: 0.95rem; color: #F8FAFC; font-weight: 600;">Repetition #{best_eval['rep_num']} Form Standard</div>
+                <div style="font-size: 0.82rem; color: #94A3B8; margin-top: 6px;">Achieved highest biomechanical score ({best_eval['overall_score']} / 100 • {best_eval['grade']})</div>
             </div>
             """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size: 0.8rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.06em; margin: 14px 0 8px 0;'>Kinematic Coaching Directives</div>", unsafe_allow_html=True)
+        for t in tips["rule_tips"]:
+            st.markdown(f"""
+            <div class="diagnostic-card" style="padding: 12px 16px; margin-bottom: 8px; border-left: 3px solid #38BDF8;">
+                <div style="font-size: 0.88rem; color: #CBD5E1; line-height: 1.55;">• {t}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
     # --------------------------------------------------------------------------
-    # 4. INTERACTIVE PLOTLY REPETITION DEEP DIVE
+    # TAB 2: SYNCHRONOUS VIDEO & SKELETAL STUDIO
     # --------------------------------------------------------------------------
-    st.markdown("""
-    <div class="section-wrap">
-        <div class="section-bar"></div>
-        <div class="section-title">Interactive Repetition Telemetry & Dynamic Time Warping</div>
-        <div class="section-desc">Time-Normalized Kinematic Trajectory Matching</div>
-    </div>
-    """, unsafe_allow_html=True)
+    with tab_studio:
+        col_vid, col_pose = st.columns([1.0, 1.0])
 
-    tabs = st.tabs([f"Repetition #{i+1} ({ev['overall_score']} pts)" for i, ev in enumerate(rep_evaluations)])
+        with col_vid:
+            st.markdown("""
+            <div style="background:#111827; border:1px solid #1E293B; border-bottom:none; border-radius:8px 8px 0 0; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.75rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em;">Video Feed (Raw Input)</span>
+                <span style="font-size:0.72rem; color:#64748B;">RGB Channel</span>
+            </div>
+            """, unsafe_allow_html=True)
+            st.video(str(selected_video_path))
 
-    for i, tab in enumerate(tabs):
-        with tab:
-            eval_data = rep_evaluations[i]
-            r_gaps = eval_data["gaps"]
-            r_penalties = eval_data["penalties"]
-            curves = eval_data["curves"]
+        with col_pose:
+            worst_rep_idx = int(np.argmin(overall_scores))
+            worst_eval = rep_evaluations[worst_rep_idx]
+            worst_abs_frame = worst_eval["worst_moment"]["absolute_frame_idx"]
 
-            plot_col, details_col = st.columns([1.45, 1.0])
+            st.markdown(f"""
+            <div style="background:#111827; border:1px solid #1E293B; border-bottom:none; border-radius:8px 8px 0 0; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.75rem; font-weight:700; color:#38BDF8; text-transform:uppercase; letter-spacing:0.06em;">Skeletal Overlay (33 Joints)</span>
+                <span style="font-size:0.72rem; color:#F59E0B; font-weight:600;">Defect at Frame {worst_abs_frame}</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Interactive Frame Scrubber Slider
+            scrub_frame = st.slider(
+                "Scrub Video Frames:",
+                min_value=0,
+                max_value=len(annotated_frames) - 1,
+                value=min(worst_abs_frame, len(annotated_frames) - 1),
+                step=1,
+                help="Drag slider to inspect joint tracking across any frame.",
+            )
 
-            with plot_col:
-                st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;'>Kinematic Curve Alignment (Plotly)</div>", unsafe_allow_html=True)
-                norm_percent = np.linspace(0, 100, len(curves["user_norm_knee"]))
-                ref_mean = np.array(curves["ref_mean_knee"])
-                ref_std = np.array(curves["ref_std_knee"])
-                user_knee = np.array(curves["user_norm_knee"])
+            frame_rgb = cv2.cvtColor(annotated_frames[scrub_frame], cv2.COLOR_BGR2RGB)
+            st.image(
+                frame_rgb,
+                caption=f"Frame {scrub_frame} of {len(annotated_frames)} | Timestamp: {scrub_frame/fps:.2f}s",
+                use_container_width=True,
+            )
 
-                fig_curve = go.Figure()
-
-                # Golden Corridor (±1 Standard Deviation Shading)
-                fig_curve.add_trace(go.Scatter(
-                    x=np.concatenate([norm_percent, norm_percent[::-1]]),
-                    y=np.concatenate([ref_mean + ref_std, (ref_mean - ref_std)[::-1]]),
-                    fill="toself",
-                    fillcolor="rgba(56, 189, 248, 0.12)",
-                    line=dict(color="rgba(255,255,255,0)"),
-                    hoverinfo="skip",
-                    showlegend=True,
-                    name="Acceptable Corridor (±1 Std Dev)",
-                ))
-
-                # Golden Reference Mean Line
-                fig_curve.add_trace(go.Scatter(
-                    x=norm_percent,
-                    y=ref_mean,
-                    mode="lines",
-                    line=dict(color="#38BDF8", width=2.5, dash="dash"),
-                    name="Golden Reference Mean",
-                    hovertemplate="Reference: %{y:.1f}°<extra></extra>",
-                ))
-
-                # User's Actual Repetition Curve
-                u_color = "#34D399" if eval_data["overall_score"] >= 80 else "#F87171"
-                fig_curve.add_trace(go.Scatter(
-                    x=norm_percent,
-                    y=user_knee,
-                    mode="lines",
-                    line=dict(color=u_color, width=3.5),
-                    name=f"User Rep #{i+1}",
-                    hovertemplate="User Angle: %{y:.1f}° at %{x:.0f}%<extra></extra>",
-                ))
-
-                # Highlight Target Depth Threshold
-                fig_curve.add_hline(
-                    y=target_depth,
-                    line_dash="dot",
-                    line_color="#FBBF24",
-                    annotation_text=f"Target ({target_depth:.0f}°)",
-                    annotation_position="bottom right",
-                    annotation_font=dict(color="#FBBF24", size=10),
-                )
-
-                fig_curve.update_layout(
-                    paper_bgcolor="#111827",
-                    plot_bgcolor="#111827",
-                    xaxis=dict(title="Normalized Repetition Progress (%)", gridcolor="#1E293B", tickfont=dict(color="#94A3B8")),
-                    yaxis=dict(title=f"{'Knee' if exercise_name == 'squat' else 'Elbow'} Flexion Angle (°)", gridcolor="#1E293B", tickfont=dict(color="#94A3B8")),
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="#CBD5E1", size=10)),
-                    margin=dict(l=30, r=20, t=30, b=30),
-                    height=340,
-                )
-                st.plotly_chart(fig_curve, use_container_width=True)
-
-            with details_col:
-                st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;'>Biomechanical Deductions</div>", unsafe_allow_html=True)
+            if abs(scrub_frame - worst_abs_frame) <= 3:
                 st.markdown(f"""
-                <div class="diagnostic-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <span style="font-size:0.72rem; color:#64748B; text-transform:uppercase; font-weight:700; letter-spacing:0.06em;">Repetition Grade</span>
-                        <span style="font-size:0.75rem; font-weight:700; color:{u_color}; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:4px;">{eval_data['grade']}</span>
-                    </div>
-                    <div style="font-size:2rem; font-weight:800; color:{u_color}; line-height:1.1;">
-                        {eval_data['overall_score']} <span style="font-size:1.0rem; color:#64748B; font-weight:600;">/ 100 pts</span>
-                    </div>
-                    <div style="height:1px; background:#1E293B; margin:12px 0;"></div>
-                    <div style="display:flex; flex-direction:column; gap:8px; font-size:0.85rem; color:#E2E8F0;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span>Depth Penalty (Bottom: {r_gaps['user_min_knee']}°):</span>
-                            <span style="font-family:'JetBrains Mono',monospace; color:{'#F87171' if r_penalties['depth_penalty'] > 0 else '#34D399'}; font-weight:700;">-{r_penalties['depth_penalty']} pts</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span>Trunk Lean Penalty (Peak: {r_gaps['user_peak_torso']}°):</span>
-                            <span style="font-family:'JetBrains Mono',monospace; color:{'#F87171' if r_penalties['torso_penalty'] > 0 else '#34D399'}; font-weight:700;">-{r_penalties['torso_penalty']} pts</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span>Trajectory Jitter (DTW: {r_gaps['dtw_distance']}):</span>
-                            <span style="font-family:'JetBrains Mono',monospace; color:{'#F87171' if r_penalties['trajectory_penalty'] > 0 else '#34D399'}; font-weight:700;">-{r_penalties['trajectory_penalty']} pts</span>
-                        </div>
-                    </div>
+                <div style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:10px 14px; margin-top:8px;">
+                    <span style="color:#F87171; font-weight:700; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em;">Primary Form Defect Detected:</span>
+                    <div style="color:#FCA5A5; font-size:0.85rem; margin-top:2px;">{worst_eval['worst_moment']['reason']} (Observed around Frame {worst_abs_frame})</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin:14px 0 8px 0;'>Coach Lens Recommendations</div>", unsafe_allow_html=True)
-                tips = coach.get_coaching_feedback(eval_data)
-                for t in tips["rule_tips"]:
+    # --------------------------------------------------------------------------
+    # TAB 3: FAST-DTW KINEMATIC CURVES
+    # --------------------------------------------------------------------------
+    with tab_dtw:
+        st.markdown("""
+        <div style="background: #111827; border: 1px solid #1E293B; border-radius: 10px; padding: 12px 18px; margin-bottom: 16px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.06em;">Dynamic Time Warping (FastDTW) Trajectory Comparison</div>
+            <div style="font-size: 0.85rem; color: #CBD5E1; margin-top: 2px;">
+                Each repetition is time-normalized to 100 percentage steps and aligned against the Golden Reference Template corridor (shaded band = ±1 standard deviation).
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        rep_tabs = st.tabs([f"Repetition #{i+1} ({ev['overall_score']} pts)" for i, ev in enumerate(rep_evaluations)])
+
+        for i, rep_tab in enumerate(rep_tabs):
+            with rep_tab:
+                eval_data = rep_evaluations[i]
+                r_gaps = eval_data["gaps"]
+                r_penalties = eval_data["penalties"]
+                curves = eval_data["curves"]
+
+                plot_col, details_col = st.columns([1.45, 1.0])
+
+                with plot_col:
+                    st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;'>Kinematic Curve Alignment (Plotly)</div>", unsafe_allow_html=True)
+                    norm_percent = np.linspace(0, 100, len(curves["user_norm_knee"]))
+                    ref_mean = np.array(curves["ref_mean_knee"])
+                    ref_std = np.array(curves["ref_std_knee"])
+                    user_knee = np.array(curves["user_norm_knee"])
+
+                    fig_curve = go.Figure()
+
+                    # Golden Corridor (±1 Standard Deviation Shading)
+                    fig_curve.add_trace(go.Scatter(
+                        x=np.concatenate([norm_percent, norm_percent[::-1]]),
+                        y=np.concatenate([ref_mean + ref_std, (ref_mean - ref_std)[::-1]]),
+                        fill="toself",
+                        fillcolor="rgba(56, 189, 248, 0.12)",
+                        line=dict(color="rgba(255,255,255,0)"),
+                        hoverinfo="skip",
+                        showlegend=True,
+                        name="Acceptable Corridor (±1 Std Dev)",
+                    ))
+
+                    # Golden Reference Mean Line
+                    fig_curve.add_trace(go.Scatter(
+                        x=norm_percent,
+                        y=ref_mean,
+                        mode="lines",
+                        line=dict(color="#38BDF8", width=2.5, dash="dash"),
+                        name="Golden Reference Mean",
+                        hovertemplate="Reference: %{y:.1f}°<extra></extra>",
+                    ))
+
+                    # User's Actual Repetition Curve
+                    u_color = "#34D399" if eval_data["overall_score"] >= 80 else "#F87171"
+                    fig_curve.add_trace(go.Scatter(
+                        x=norm_percent,
+                        y=user_knee,
+                        mode="lines",
+                        line=dict(color=u_color, width=3.5),
+                        name=f"User Rep #{i+1}",
+                        hovertemplate="User Angle: %{y:.1f}° at %{x:.0f}%<extra></extra>",
+                    ))
+
+                    # Highlight Target Depth Threshold
+                    fig_curve.add_hline(
+                        y=target_depth,
+                        line_dash="dot",
+                        line_color="#FBBF24",
+                        annotation_text=f"Target ({target_depth:.0f}°)",
+                        annotation_position="bottom right",
+                        annotation_font=dict(color="#FBBF24", size=10),
+                    )
+
+                    fig_curve.update_layout(
+                        paper_bgcolor="#111827",
+                        plot_bgcolor="#111827",
+                        xaxis=dict(title="Normalized Repetition Progress (%)", gridcolor="#1E293B", tickfont=dict(color="#94A3B8")),
+                        yaxis=dict(title=f"{'Knee' if exercise_name == 'squat' else 'Elbow'} Flexion Angle (°)", gridcolor="#1E293B", tickfont=dict(color="#94A3B8")),
+                        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color="#CBD5E1", size=10)),
+                        margin=dict(l=30, r=20, t=30, b=30),
+                        height=340,
+                    )
+                    st.plotly_chart(fig_curve, use_container_width=True)
+
+                with details_col:
+                    st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;'>Biomechanical Deductions</div>", unsafe_allow_html=True)
                     st.markdown(f"""
-                    <div class="diagnostic-card" style="padding:10px 14px; margin-bottom:8px; border-left:3px solid #38BDF8;">
-                        <div style="font-size:0.88rem; color:#CBD5E1; line-height:1.5;">{t}</div>
+                    <div class="diagnostic-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span style="font-size:0.72rem; color:#64748B; text-transform:uppercase; font-weight:700; letter-spacing:0.06em;">Repetition Grade</span>
+                            <span style="font-size:0.75rem; font-weight:700; color:{u_color}; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:4px;">{eval_data['grade']}</span>
+                        </div>
+                        <div style="font-size:2rem; font-weight:800; color:{u_color}; line-height:1.1;">
+                            {eval_data['overall_score']} <span style="font-size:1.0rem; color:#64748B; font-weight:600;">/ 100 pts</span>
+                        </div>
+                        <div style="height:1px; background:#1E293B; margin:12px 0;"></div>
+                        <div style="display:flex; flex-direction:column; gap:8px; font-size:0.85rem; color:#E2E8F0;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span>Depth Penalty (Bottom: {r_gaps['user_min_knee']}°):</span>
+                                <span style="font-family:'JetBrains Mono',monospace; color:{'#F87171' if r_penalties['depth_penalty'] > 0 else '#34D399'}; font-weight:700;">-{r_penalties['depth_penalty']} pts</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span>Trunk Lean Penalty (Peak: {r_gaps['user_peak_torso']}°):</span>
+                                <span style="font-family:'JetBrains Mono',monospace; color:{'#F87171' if r_penalties['torso_penalty'] > 0 else '#34D399'}; font-weight:700;">-{r_penalties['torso_penalty']} pts</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span>Trajectory Jitter (DTW: {r_gaps['dtw_distance']}):</span>
+                                <span style="font-family:'JetBrains Mono',monospace; color:{'#F87171' if r_penalties['trajectory_penalty'] > 0 else '#34D399'}; font-weight:700;">-{r_penalties['trajectory_penalty']} pts</span>
+                            </div>
+                        </div>
                     </div>
                     """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown("<div style='font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin:14px 0 8px 0;'>Coach Lens Recommendations</div>", unsafe_allow_html=True)
+                    tips = coach.get_coaching_feedback(eval_data)
+                    for t in tips["rule_tips"]:
+                        st.markdown(f"""
+                        <div class="diagnostic-card" style="padding:10px 14px; margin-bottom:8px; border-left:3px solid #38BDF8;">
+                            <div style="font-size:0.88rem; color:#CBD5E1; line-height:1.5;">{t}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
 
     # --------------------------------------------------------------------------
-    # 5. DETAILED AUDIT TELEMETRY LOG
+    # TAB 4: REPETITION AUDIT LOG & EXPORT
     # --------------------------------------------------------------------------
-    st.markdown("""
-    <div class="section-wrap">
-        <div class="section-bar"></div>
-        <div class="section-title">Repetition Telemetry Audit Log</div>
-        <div class="section-desc">Tabular Kinematic Log & CSV Export</div>
-    </div>
-    """, unsafe_allow_html=True)
+    with tab_audit:
+        m1, m2, m3, m4 = st.columns(4)
+        with m1:
+            st.markdown(f"""
+            <div class="stat-card" style="padding: 12px 16px;">
+                <div class="stat-label">Total Reps Logged</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: #F8FAFC; margin-top: 2px;">{len(reps)}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with m2:
+            st.markdown(f"""
+            <div class="stat-card" style="padding: 12px 16px;">
+                <div class="stat-label">Highest Rep Score</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: #34D399; margin-top: 2px;">{max(overall_scores)} <span style="font-size: 0.85rem; color: #64748B;">/ 100</span></div>
+            </div>
+            """, unsafe_allow_html=True)
+        with m3:
+            st.markdown(f"""
+            <div class="stat-card" style="padding: 12px 16px;">
+                <div class="stat-label">Lowest Rep Score</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: #F87171; margin-top: 2px;">{min(overall_scores)} <span style="font-size: 0.85rem; color: #64748B;">/ 100</span></div>
+            </div>
+            """, unsafe_allow_html=True)
+        with m4:
+            mean_dur = np.mean([r['duration_sec'] for r in reps])
+            st.markdown(f"""
+            <div class="stat-card" style="padding: 12px 16px;">
+                <div class="stat-label">Mean Rep Duration</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: #38BDF8; margin-top: 2px;">{mean_dur:.2f}s</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    log_rows = []
-    for ev in rep_evaluations:
-        log_rows.append({
-            "Rep #": ev["rep_num"],
-            "Score (0-100)": ev["overall_score"],
-            "Grade": ev["grade"],
-            "Duration (s)": ev["duration_sec"],
-            "Knee Depth Angle": f"{ev['gaps']['user_min_knee']}°",
-            "Torso Forward Lean": f"{ev['gaps']['user_peak_torso']}°",
-            "Primary Defect Reason": ev["worst_moment"]["reason"],
-        })
-    log_df = pd.DataFrame(log_rows)
-    st.dataframe(log_df, use_container_width=True, hide_index=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        log_rows = []
+        for ev in rep_evaluations:
+            log_rows.append({
+                "Rep #": ev["rep_num"],
+                "Score (0-100)": ev["overall_score"],
+                "Grade": ev["grade"],
+                "Duration (s)": ev["duration_sec"],
+                f"{'Knee' if exercise_name == 'squat' else 'Elbow'} Depth Angle": f"{ev['gaps']['user_min_knee']}°",
+                "Torso Forward Lean": f"{ev['gaps']['user_peak_torso']}°",
+                "Primary Defect Reason": ev["worst_moment"]["reason"],
+            })
+        log_df = pd.DataFrame(log_rows)
+        st.dataframe(log_df, use_container_width=True, hide_index=True)
 
-    csv_data = log_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label="Download Repetition Telemetry CSV Report",
-        data=csv_data,
-        file_name=f"{selected_video_path.stem}_coach_lens_evaluation.csv",
-        mime="text/csv",
-    )
+        csv_data = log_df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="Download Repetition Telemetry CSV Report",
+            data=csv_data,
+            file_name=f"{selected_video_path.stem}_coach_lens_evaluation.csv",
+            mime="text/csv",
+        )
